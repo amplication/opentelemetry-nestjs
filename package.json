@@ -95,10 +95,5 @@
     "@opentelemetry/resource-detector-container": "^0.3.0",
     "@opentelemetry/sdk-node": "^0.41.2",
     "@opentelemetry/sdk-trace-base": "^1.15.2"
-  },
-  "peerDependenciesMeta": {
-    "@nestjs/graphql": {
-      "optional": true
-    }
   }
 }
