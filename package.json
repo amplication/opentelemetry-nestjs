@@ -1,6 +1,6 @@
 {
-  "name": "@amplication/opentelemetry-nestjs",
-  "version": "0.0.0-development",
+  "name": "@matteappen/opentelemetry-nestjs",
+  "version": "1.0.1",
   "description": "OpenTelemetry module for Nestjs with auto instrumentation and resource detection. Initially forked from https://github.com/overbit/opentelemetry-nestjs.git",
   "author": "Daniele Iasella <2861984+overbit@users.noreply.github.com>",
   "license": "MIT",
