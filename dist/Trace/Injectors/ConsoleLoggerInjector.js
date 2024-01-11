@@ -10,7 +10,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ConsoleLoggerInjector = void 0;
 const common_1 = require("@nestjs/common");
 const api_1 = require("@opentelemetry/api");
-let ConsoleLoggerInjector = ConsoleLoggerInjector_1 = class ConsoleLoggerInjector {
+const api_logs_1 = require("@opentelemetry/api-logs");
+let ConsoleLoggerInjector = class ConsoleLoggerInjector {
+    static { ConsoleLoggerInjector_1 = this; }
+    static otelLogger = api_logs_1.logs.getLogger('default');
     inject() {
         common_1.ConsoleLogger.prototype.log = this.wrapPrototype(common_1.ConsoleLogger.prototype.log);
         common_1.ConsoleLogger.prototype.debug = this.wrapPrototype(common_1.ConsoleLogger.prototype.debug);
@@ -32,6 +35,11 @@ let ConsoleLoggerInjector = ConsoleLoggerInjector_1 = class ConsoleLoggerInjecto
             return message;
         const spanContext = api_1.trace.getSpan(api_1.context.active()).spanContext();
         currentSpan.addEvent(message);
+        if (this.otelLogger instanceof common_1.Logger) {
+            this.otelLogger.emit({
+                body: JSON.stringify({ message }),
+            });
+        }
         return `[${spanContext.traceId}] ${message}`;
     }
 };

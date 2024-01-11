@@ -1,9 +1,11 @@
-import { ConsoleLogger, Injectable } from '@nestjs/common';
+import { ConsoleLogger, Injectable, Logger } from '@nestjs/common';
 import { Injector } from './Injector';
 import { context, trace } from '@opentelemetry/api';
+import { logs } from '@opentelemetry/api-logs';
 
 @Injectable()
 export class ConsoleLoggerInjector implements Injector {
+  private static otelLogger = logs.getLogger('default');
   public inject() {
     ConsoleLogger.prototype.log = this.wrapPrototype(
       ConsoleLogger.prototype.log,
@@ -21,7 +23,6 @@ export class ConsoleLoggerInjector implements Injector {
       ConsoleLogger.prototype.warn,
     );
   }
-
   private wrapPrototype(prototype) {
     return {
       [prototype.name]: function (...args: any[]) {
@@ -37,6 +38,12 @@ export class ConsoleLoggerInjector implements Injector {
 
     const spanContext = trace.getSpan(context.active()).spanContext();
     currentSpan.addEvent(message);
+
+    if (this.otelLogger instanceof Logger) {
+      this.otelLogger.emit({
+        body: JSON.stringify({ message }),
+      });
+    }
 
     return `[${spanContext.traceId}] ${message}`;
   }
