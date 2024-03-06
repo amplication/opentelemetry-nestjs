@@ -35,7 +35,7 @@ export const NodeAutoInstrumentationsDefaultConfig = <InstrumentationConfigMap>{
     enabled: true,
     ignoreIncomingRequestHook: (request: IncomingMessage) => {
       return (
-        ['/health', '/_health', '/healthz', 'healthcheck'].includes(
+        ['/health', '/_health', '/healthz', '/healthcheck'].includes(
           request.url,
         ) || request.method === 'OPTIONS'
       );
