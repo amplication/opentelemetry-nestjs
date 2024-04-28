@@ -506,11 +506,11 @@ export class AppModule {}
 // main.ts
 // at the very top of the file
 import { Tracing } from '@amplication/opentelemetry-nestjs';
-import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-node';
+import { SimpleSpanProcessor, ConsoleSpanExporter } from '@opentelemetry/sdk-trace-node';
 
 Tracing.init({
   serviceName: 'my-service',
-  spanProcessor: new SimpleSpanProcessor(),
+  spanProcessor: new SimpleSpanProcessor(new ConsoleSpanExporter()),
 });
 
 import { NestFactory } from '@nestjs/core';
