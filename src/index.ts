@@ -10,6 +10,7 @@ export * from './OpenTelemetryModuleConfig.interface';
 // Trace
 export * from './Trace/Decorators/Span';
 export * from './Trace/Decorators/Traceable';
+export * from './Trace/Tracer.types';
 export * from './Trace/TraceService';
 export * from './Trace/TraceWrapper';
 export * from './Trace/Injectors/ControllerInjector';

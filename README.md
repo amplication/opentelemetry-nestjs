@@ -228,7 +228,7 @@ In an advanced use cases, you need to access the native OpenTelemetry Trace prov
 
 ```ts
 import { Injectable } from '@nestjs/common';
-import { Tracer } from '@opentelemetry/sdk-trace-node';
+import { Tracer } from '@helveg/opentelemetry-nestjs';
 
 @Injectable()
 export class AppService {
