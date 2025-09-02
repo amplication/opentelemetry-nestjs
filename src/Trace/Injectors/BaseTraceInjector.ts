@@ -26,9 +26,13 @@ export class BaseTraceInjector {
   protected *getProviders(): Generator<InstanceWrapper<Injectable>> {
     for (const module of this.modulesContainer.values()) {
       for (const provider of module.providers.values()) {
-        if (provider && provider?.metatype?.prototype) {
+        if (provider?.metatype?.prototype) {
           yield provider as InstanceWrapper<Injectable>;
-        } else if (provider.isAlias && provider.inject?.[0]) {
+        } else if (
+          provider.isAlias &&
+          typeof provider.inject?.[0] === 'function' &&
+          provider.inject?.[0].prototype
+        ) {
           // Yield the "resolved" alias metatype. Not sure if this is robust,
           // but it works for simple 'useExisting'.
           yield {
