@@ -1,4 +1,4 @@
-import { Span, SpanKind, SpanStatusCode, trace } from '@opentelemetry/api';
+import { context, Span, SpanKind, SpanStatusCode, trace } from '@opentelemetry/api';
 import { Constants } from '../Constants';
 import { TraceWrapperOptions } from './TraceWrapper.types';
 import { MetadataScanner } from '../MetaScanner';
@@ -51,9 +51,11 @@ export class TraceWrapper {
     let method;
 
     if (prototype.constructor.name === 'AsyncFunction') {
+      console.log("WRAPPING ASYNC", prototype.name)
       method = {
         [prototype.name]: async function (...args: unknown[]) {
           const tracer = trace.getTracer(Constants.TRACER_NAME);
+          console.log('wrapped async exec', prototype.name, traceName, kind, attributes)
           return await tracer.startActiveSpan(
             traceName,
             { kind },
@@ -70,11 +72,12 @@ export class TraceWrapper {
         },
       }[prototype.name];
     } else {
+      console.log("WRAPPING NORMAL", prototype.name)
       method = {
         [prototype.name]: function (...args: unknown[]) {
           const tracer = trace.getTracer(Constants.TRACER_NAME);
-
-          return tracer.startActiveSpan(traceName, { kind }, (span) => {
+          console.log('wrapped exec', prototype.name, traceName, kind, attributes, context.active())
+          return tracer.startActiveSpan(traceName, { kind }, context.active(), (span) => {
             try {
               span.setAttributes(attributes);
               return prototype.apply(this, args);

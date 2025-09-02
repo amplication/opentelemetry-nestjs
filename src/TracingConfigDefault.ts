@@ -1,6 +1,4 @@
 import { AsyncLocalStorageContextManager } from '@opentelemetry/context-async-hooks';
-import { Resource } from '@opentelemetry/resources';
-import { NoopSpanProcessor } from '@opentelemetry/sdk-trace-node';
 import {
   CompositePropagator,
   W3CTraceContextPropagator,
@@ -66,13 +64,9 @@ export const TracingDefaultConfig = <TracingConfig>{
   autoDetectResources: false,
   resourceDetectors: [containerDetector],
   contextManager: new AsyncLocalStorageContextManager(),
-  resource: new Resource({
-    lib: '@overbit/opentelemetry-nestjs',
-  }),
   instrumentations: [
     getNodeAutoInstrumentations(NodeAutoInstrumentationsDefaultConfig),
   ],
-  spanProcessor: new NoopSpanProcessor(),
   textMapPropagator: new CompositePropagator({
     propagators: [
       new JaegerPropagator(),
