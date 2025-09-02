@@ -1,0 +1,197 @@
+import { Test } from '@nestjs/testing';
+import { OpenTelemetryModule } from '../../OpenTelemetryModule';
+import { NoopSpanProcessor } from '@opentelemetry/sdk-trace-node';
+import {
+  CallHandler,
+  CanActivate,
+  Controller,
+  ExecutionContext,
+  Get, Injectable,
+  NestInterceptor,
+  UseGuards,
+  UseInterceptors,
+} from '@nestjs/common';
+import * as request from 'supertest';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { Span } from '../Decorators/Span';
+import { Tracing } from '../../Tracing';
+import { InterceptorInjector } from './InterceptorInjector';
+import { Observable } from 'rxjs';
+
+describe('Tracing Interceptor Injector Test', () => {
+  const sdkModule = OpenTelemetryModule.forRoot([InterceptorInjector]);
+  let exporterSpy: jest.SpyInstance;
+  const exporter = new NoopSpanProcessor();
+  Tracing.init({ serviceName: 'a', spanProcessor: exporter });
+
+  beforeEach(() => {
+    exporterSpy = jest.spyOn(exporter, 'onStart');
+  });
+
+  afterEach(() => {
+    exporterSpy.mockClear();
+    exporterSpy.mockReset();
+  });
+
+  it(`should trace intercepted controller`, async () => {
+    // given
+    @Injectable()
+    class TestInterceptor implements NestInterceptor {
+      intercept(
+        context: ExecutionContext,
+        next: CallHandler<any>,
+      ): Observable<any> | Promise<Observable<any>> {
+        return next.handle();
+      }
+    }
+
+    @UseInterceptors(TestInterceptor)
+    @Controller('hello')
+    class HelloController {
+      @Get()
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      hi() {}
+    }
+    const context = await Test.createTestingModule({
+      imports: [sdkModule],
+      controllers: [HelloController],
+    }).compile();
+    const app = context.createNestApplication();
+    await app.init();
+
+    // when
+    await request(app.getHttpServer()).get('/hello').send().expect(200);
+
+    //then
+    expect(exporterSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'Interceptor->HelloController.TestInterceptor' }),
+      expect.any(Object),
+    );
+
+    await app.close();
+  });
+
+  it(`should trace intercepted controller method`, async () => {
+    // given
+    @Injectable()
+    class TestInterceptor implements NestInterceptor {
+      intercept(
+        context: ExecutionContext,
+        next: CallHandler<any>,
+      ): Observable<any> | Promise<Observable<any>> {
+        return next.handle();
+      }
+    }
+
+    @Controller('hello')
+    class HelloController {
+      @Get()
+      @UseInterceptors(TestInterceptor)
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      hi() {}
+    }
+    const context = await Test.createTestingModule({
+      imports: [sdkModule],
+      controllers: [HelloController],
+    }).compile();
+    const app = context.createNestApplication();
+    await app.init();
+
+    // when
+    await request(app.getHttpServer()).get('/hello').send().expect(200);
+
+    //then
+    expect(exporterSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: 'Interceptor->HelloController.hi.TestInterceptor',
+      }),
+      expect.any(Object),
+    );
+
+    await app.close();
+  });
+
+  it(`should trace guarded and decorated controller method`, async () => {
+    // given
+    @Injectable()
+    class TestInterceptor implements NestInterceptor {
+      intercept(
+        context: ExecutionContext,
+        next: CallHandler<any>,
+      ): Observable<any> | Promise<Observable<any>> {
+        return next.handle();
+      }
+    }
+
+    @Controller('hello')
+    class HelloController {
+      @Get()
+      @Span('comolokko')
+      @UseInterceptors(TestInterceptor)
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      hi() {}
+    }
+    const context = await Test.createTestingModule({
+      imports: [sdkModule],
+      controllers: [HelloController],
+    }).compile();
+    const app = context.createNestApplication();
+    await app.init();
+
+    // when
+    await request(app.getHttpServer()).get('/hello').send().expect(200);
+
+    //then
+    expect(exporterSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: 'Interceptor->HelloController.hi.TestInterceptor',
+      }),
+      expect.any(Object),
+    );
+
+    await app.close();
+  });
+
+  it(`should trace global guard`, async () => {
+    // given
+    @Injectable()
+    class TestInterceptor implements NestInterceptor {
+      intercept(
+        context: ExecutionContext,
+        next: CallHandler<any>,
+      ): Observable<any> | Promise<Observable<any>> {
+        return next.handle();
+      }
+    }
+
+    @Controller('hello')
+    class HelloController {
+      @Get()
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      hi() {}
+    }
+    const context = await Test.createTestingModule({
+      imports: [sdkModule],
+      controllers: [HelloController],
+      providers: [
+        {
+          provide: APP_INTERCEPTOR,
+          useClass: TestInterceptor,
+        },
+      ],
+    }).compile();
+    const app = context.createNestApplication();
+    await app.init();
+
+    // when
+    await request(app.getHttpServer()).get('/hello').send().expect(200);
+
+    //then
+    expect(exporterSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'Interceptor->Global->TestInterceptor' }),
+      expect.any(Object),
+    );
+
+    await app.close();
+  });
+});

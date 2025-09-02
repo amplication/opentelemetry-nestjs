@@ -6,11 +6,13 @@ import { PipeInjector } from './Trace/Injectors/PipeInjector';
 import { ConsoleLoggerInjector } from './Trace/Injectors/ConsoleLoggerInjector';
 import { OpenTelemetryModuleConfig } from './OpenTelemetryModuleConfig.interface';
 import { GraphQLResolverInjector } from './Trace/Injectors/GraphQLResolverInjector';
+import { InterceptorInjector } from './Trace/Injectors/InterceptorInjector.js';
 
 export const OpenTelemetryModuleDefaultConfig = <OpenTelemetryModuleConfig>[
   ControllerInjector,
   GraphQLResolverInjector,
   GuardInjector,
+  InterceptorInjector,
   EventEmitterInjector,
   ScheduleInjector,
   PipeInjector,

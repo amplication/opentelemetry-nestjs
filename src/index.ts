@@ -17,6 +17,7 @@ export * from './Trace/Injectors/ControllerInjector';
 export * from './Trace/Injectors/GraphQLResolverInjector';
 export * from './Trace/Injectors/EventEmitterInjector';
 export * from './Trace/Injectors/GuardInjector';
+export * from './Trace/Injectors/InterceptorInjector';
 export * from './Trace/Injectors/ConsoleLoggerInjector';
 export * from './Trace/Injectors/PipeInjector';
 export * from './Trace/Injectors/ScheduleInjector';
