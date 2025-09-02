@@ -1,5 +1,5 @@
 {
-  "name": "@amplication/opentelemetry-nestjs",
+  "name": "@helveg/opentelemetry-nestjs",
   "version": "0.0.0-development",
   "description": "OpenTelemetry module for Nestjs with auto instrumentation and resource detection. Initially forked from https://github.com/overbit/opentelemetry-nestjs.git",
   "author": "Daniele Iasella <2861984+overbit@users.noreply.github.com>",
@@ -7,7 +7,7 @@
   "main": "dist/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/amplication/opentelemetry-nestjs.git"
+    "url": "https://github.com/helveg/opentelemetry-nestjs.git"
   },
   "release": {
     "branches": [
@@ -28,9 +28,9 @@
     "aws-xray"
   ],
   "bugs": {
-    "url": "https://github.com/amplication/opentelemetry-nestjs/issues"
+    "url": "https://github.com/helveg/opentelemetry-nestjs/issues"
   },
-  "homepage": "https://github.com/amplication/opentelemetry-nestjs#readme",
+  "homepage": "https://github.com/helveg/opentelemetry-nestjs#readme",
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
@@ -77,17 +77,17 @@
     "@nestjs/graphql": "^8.0.0 || ^9.0.0 || ^10.0.0 || ^11.0.0 || ^12.0.0",
     "@nestjs/platform-express": "^8.0.0 || ^9.0.0 || ^10.0.0",
     "@nestjs/schedule": "^3.0.0 || ^4.0.1",
-    "@opentelemetry/auto-instrumentations-node": "^0.41.1",
+    "@opentelemetry/auto-instrumentations-node": "^0.62.1",
     "@opentelemetry/context-async-hooks": "^1.21.0",
-    "@opentelemetry/exporter-metrics-otlp-grpc": "^0.48.0",
-    "@opentelemetry/exporter-metrics-otlp-proto": "^0.48.0",
-    "@opentelemetry/exporter-trace-otlp-grpc": "^0.48.0",
-    "@opentelemetry/exporter-trace-otlp-http": "^0.48.0",
+    "@opentelemetry/exporter-metrics-otlp-grpc": "^0.203.0",
+    "@opentelemetry/exporter-metrics-otlp-proto": "^0.203.0",
+    "@opentelemetry/exporter-trace-otlp-grpc": "^0.203.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.203.0",
     "@opentelemetry/exporter-trace-otlp-proto": "^0.48.0",
     "@opentelemetry/propagator-b3": "^1.21.0",
     "@opentelemetry/propagator-jaeger": "^1.21.0",
     "@opentelemetry/resource-detector-container": "^0.3.6",
-    "@opentelemetry/sdk-node": "^0.48.0",
+    "@opentelemetry/sdk-node": "^0.203.0",
     "@opentelemetry/sdk-trace-base": "^1.21.0"
   }
 }

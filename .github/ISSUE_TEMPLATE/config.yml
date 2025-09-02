@@ -1,5 +1,5 @@
 blank_issues_enabled: false
 contact_links:
   - name: No issues undertaking
-    url: https://github.com/amplication/amplication/issues/new/choose
-    about: We are not tracking issues in this repo. To report an issue related to this repo, please open the issue on our main repo amplication/amplication
+    url: https://github.com/helveg/helveg/issues/new/choose
+    about: We are not tracking issues in this repo. To report an issue related to this repo, please open the issue on our main repo helveg/helveg

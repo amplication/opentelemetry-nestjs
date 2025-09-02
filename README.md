@@ -1,7 +1,7 @@
 # NestJS OpenTelemetry
 
 <p align="center">
-<a href="https://www.npmjs.com/package/@amplication/opentelemetry-nestjs"><img src="https://img.shields.io/npm/v/@amplication/opentelemetry-nestjs.svg"/> <img src="https://img.shields.io/npm/dt/@amplication/opentelemetry-nestjs.svg"/></a>
+<a href="https://www.npmjs.com/package/@helveg/opentelemetry-nestjs"><img src="https://img.shields.io/npm/v/@helveg/opentelemetry-nestjs.svg"/> <img src="https://img.shields.io/npm/dt/@helveg/opentelemetry-nestjs.svg"/></a>
 <a href="https://github.com/overbit/opentelemetry-nestjs"><img src="https://img.shields.io/npm/l/@overbit/opentelemetry-nestjs.svg"/></a>
 <a href="https://github.com/overbit/opentelemetry-nestjs"><img src="https://img.shields.io/github/stars/overbit/opentelemetry-nestjs.svg"/></a>
 </p>
@@ -36,7 +36,7 @@ Competability table for Nestjs versions.
 ## Installation
 
 ```bash
-npm install @amplication/opentelemetry-nestjs --save
+npm install @helveg/opentelemetry-nestjs --save
 ```
 
 ---
@@ -46,7 +46,7 @@ npm install @amplication/opentelemetry-nestjs --save
 This is a basic configuration without any trace and metric exporter, but includes default metrics and injectors
 
 ```ts
-import { OpenTelemetryModule } from '@amplication/opentelemetry-nestjs';
+import { OpenTelemetryModule } from '@helveg/opentelemetry-nestjs';
 
 @Module({
   imports: [
@@ -61,7 +61,7 @@ export class AppModule {}
 Async configuration example
 
 ```ts
-import { OpenTelemetryModule } from '@amplication/opentelemetry-nestjs';
+import { OpenTelemetryModule } from '@helveg/opentelemetry-nestjs';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
@@ -80,9 +80,9 @@ export class AppModule {}
 
 ### Configuration types
 
-`Tracing.init()` takes [TracingConfig](https://github.com/amplication/opentelemetry-nestjs/blob/main/src/TracingConfig.interface.ts#L3) as a parameter, this type is inherited by [NodeSDKConfiguration](https://github.com/open-telemetry/opentelemetry-js/blob/745bd5c34d3961dc73873190adc763747e5e026d/experimental/packages/opentelemetry-sdk-node/src/types.ts#:~:text=NodeSDKConfiguration) so you can use same OpenTelemetry SDK parameter.
+`Tracing.init()` takes [TracingConfig](https://github.com/helveg/opentelemetry-nestjs/blob/main/src/TracingConfig.interface.ts#L3) as a parameter, this type is inherited by [NodeSDKConfiguration](https://github.com/open-telemetry/opentelemetry-js/blob/745bd5c34d3961dc73873190adc763747e5e026d/experimental/packages/opentelemetry-sdk-node/src/types.ts#:~:text=NodeSDKConfiguration) so you can use same OpenTelemetry SDK parameter.
 
-`OpenTelemetryModule.forRoot()` takes [OpenTelemetryModuleConfig](https://github.com/amplication/opentelemetry-nestjs/blob/main/src/OpenTelemetryModuleConfig.interface.ts#L5)
+`OpenTelemetryModule.forRoot()` takes [OpenTelemetryModuleConfig](https://github.com/helveg/opentelemetry-nestjs/blob/main/src/OpenTelemetryModuleConfig.interface.ts#L5)
 
 ### Default Parameters
 
@@ -143,7 +143,7 @@ The setup consists of two main changes in the `main.ts` (to initialise the provi
 ```ts
 // main.ts
 // at the very top of the file
-import { Tracing } from '@amplication/opentelemetry-nestjs';
+import { Tracing } from '@helveg/opentelemetry-nestjs';
 import { ZipkinExporter } from '@opentelemetry/exporter-zipkin';
 import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-node';
 
@@ -162,7 +162,7 @@ import { NestFactory } from '@nestjs/core';
 ```
 
 ```ts
-import { OpenTelemetryModule } from '@amplication/opentelemetry-nestjs';
+import { OpenTelemetryModule } from '@helveg/opentelemetry-nestjs';
 
 @Module({
   imports: [OpenTelemetryModule.forRoot()],
@@ -186,7 +186,7 @@ This library supports auto instrumentations for Nestjs layers, but sometimes you
 
 ```ts
 import { Injectable } from '@nestjs/common';
-import { Span } from '@amplication/opentelemetry-nestjs';
+import { Span } from '@helveg/opentelemetry-nestjs';
 
 @Injectable()
 export class AppService {
@@ -209,7 +209,7 @@ Also `@Span` decorator takes `name` field as a parameter
 
 ```ts
 import { Injectable } from '@nestjs/common';
-import { Traceable } from '@amplication/opentelemetry-nestjs';
+import { Traceable } from '@helveg/opentelemetry-nestjs';
 
 @Traceable()
 @Injectable()
@@ -248,7 +248,7 @@ export class AppService {
 
 ```ts
 import { Injectable } from '@nestjs/common';
-import { TraceService } from '@amplication/opentelemetry-nestjs';
+import { TraceService } from '@helveg/opentelemetry-nestjs';
 
 @Injectable()
 export class AppService {
@@ -279,7 +279,7 @@ import {
   LoggerInjector,
   PipeInjector,
   ScheduleInjector,
-} from '@amplication/opentelemetry-nestjs';
+} from '@helveg/opentelemetry-nestjs';
 
 @Module({
   imports: [
@@ -323,7 +323,7 @@ In some use cases, you need to trace instances of classes instanciated outside t
 In order to do so, use the `TraceWrapper.trace()` method to wrap every method of the instance in a new span as follow
 
 ```ts
-import { TraceWrapper } from '@amplication/opentelemetry-nestjs';
+import { TraceWrapper } from '@helveg/opentelemetry-nestjs';
 
 class MyClass {
   hello() {
@@ -349,7 +349,7 @@ Simple setup with Prometheus exporter, you need install [@opentelemetry/exporter
 ```ts
 // main.ts
 // at the very top of the file
-import { Tracing } from '@amplication/opentelemetry-nestjs';
+import { Tracing } from '@helveg/opentelemetry-nestjs';
 import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
 
 Tracing.init({
@@ -374,7 +374,7 @@ Also, you can find different exporters [here](https://opentelemetry.io/docs/js/e
 ```ts
 // main.ts
 // at the very top of the file
-import { Tracing } from '@amplication/opentelemetry-nestjs';
+import { Tracing } from '@helveg/opentelemetry-nestjs';
 import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
 import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc';
@@ -412,7 +412,7 @@ import { NestFactory } from '@nestjs/core';
 ```ts
 // ... app.module.ts
 import { Module } from '@nestjs/common';
-import { OpenTelemetryModule } from '@amplication/opentelemetry-nestjs';
+import { OpenTelemetryModule } from '@helveg/opentelemetry-nestjs';
 
 @Module({
   imports: [OpenTelemetryModule.forRoot()],
@@ -429,7 +429,7 @@ i.e.
 ```ts
 // main.ts
 // at the very top of the file
-import { Tracing } from '@amplication/opentelemetry-nestjs';
+import { Tracing } from '@helveg/opentelemetry-nestjs';
 import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc';
 import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-node';
@@ -463,7 +463,7 @@ import { NestFactory } from '@nestjs/core';
 ```ts
 // ... app.module.ts
 import { Module } from '@nestjs/common';
-import { OpenTelemetryModule } from '@amplication/opentelemetry-nestjs';
+import { OpenTelemetryModule } from '@helveg/opentelemetry-nestjs';
 
 @Module({
   imports: [OpenTelemetryModule.forRoot()],
@@ -485,8 +485,8 @@ import { NestFactory } from '@nestjs/core';
 
 ```ts
 // app.module.ts
-import { OpenTelemetryModule } from '@amplication/opentelemetry-nestjs';
-import { ControllerInjector } from '@amplication/opentelemetry-nestjs';
+import { OpenTelemetryModule } from '@helveg/opentelemetry-nestjs';
+import { ControllerInjector } from '@helveg/opentelemetry-nestjs';
 
 @Module({
   imports: [
@@ -505,7 +505,7 @@ export class AppModule {}
 ```ts
 // main.ts
 // at the very top of the file
-import { Tracing } from '@amplication/opentelemetry-nestjs';
+import { Tracing } from '@helveg/opentelemetry-nestjs';
 import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-node';
 
 Tracing.init({
@@ -519,8 +519,8 @@ import { NestFactory } from '@nestjs/core';
 
 ```ts
 // app.module.ts
-import { OpenTelemetryModule } from '@amplication/opentelemetry-nestjs';
-import { ControllerInjector } from '@amplication/opentelemetry-nestjs';
+import { OpenTelemetryModule } from '@helveg/opentelemetry-nestjs';
+import { ControllerInjector } from '@helveg/opentelemetry-nestjs';
 
 @Module({
   imports: [OpenTelemetryModule.forRoot([ControllerInjector])],
