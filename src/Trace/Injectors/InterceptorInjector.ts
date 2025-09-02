@@ -1,8 +1,8 @@
-import { CanActivate, Injectable, Logger, NestInterceptor } from '@nestjs/common';
+import { Injectable, Logger, NestInterceptor } from '@nestjs/common';
 import { Injector } from './Injector';
-import { APP_GUARD, APP_INTERCEPTOR, ModulesContainer } from '@nestjs/core';
+import { APP_INTERCEPTOR, ModulesContainer } from '@nestjs/core';
 import { BaseTraceInjector } from './BaseTraceInjector';
-import { GUARDS_METADATA, INTERCEPTORS_METADATA } from '@nestjs/common/constants';
+import { INTERCEPTORS_METADATA } from '@nestjs/common/constants';
 
 @Injectable()
 export class InterceptorInjector extends BaseTraceInjector implements Injector {
@@ -17,21 +17,30 @@ export class InterceptorInjector extends BaseTraceInjector implements Injector {
 
     for (const controller of controllers) {
       if (this.isIntercepted(controller.metatype)) {
-        const interceptors = this.getInterceptors(controller.metatype).map((interceptor) => {
-          const prototype = interceptor['prototype'] ?? interceptor;
-          const traceName = `Interceptor->${controller.name}.${prototype.constructor.name}`;
-          prototype.intercept = this.wrap(prototype.intercept, traceName, {
-            controller: controller.name,
-            interceptor: prototype.constructor.name,
-            scope: 'CONTROLLER',
-          });
-          Object.assign(prototype, this);
-          this.loggerService.log(`Mapped ${traceName}`, this.constructor.name);
-          return interceptor;
-        });
+        const interceptors = this.getInterceptors(controller.metatype).map(
+          (interceptor) => {
+            const prototype = interceptor['prototype'] ?? interceptor;
+            const traceName = `Interceptor->${controller.name}.${prototype.constructor.name}`;
+            prototype.intercept = this.wrap(prototype.intercept, traceName, {
+              controller: controller.name,
+              interceptor: prototype.constructor.name,
+              scope: 'CONTROLLER',
+            });
+            Object.assign(prototype, this);
+            this.loggerService.log(
+              `Mapped ${traceName}`,
+              this.constructor.name,
+            );
+            return interceptor;
+          },
+        );
 
         if (interceptors.length > 0) {
-          Reflect.defineMetadata(INTERCEPTORS_METADATA, interceptors, controller.metatype);
+          Reflect.defineMetadata(
+            INTERCEPTORS_METADATA,
+            interceptors,
+            controller.metatype,
+          );
         }
       }
 
@@ -40,30 +49,29 @@ export class InterceptorInjector extends BaseTraceInjector implements Injector {
       );
 
       for (const key of keys) {
-        console.log(`Checking ${controller.name}.${key}`, this.isIntercepted(controller.metatype.prototype[key]))
+        console.log(
+          `Checking ${controller.name}.${key}`,
+          this.isIntercepted(controller.metatype.prototype[key]),
+        );
         if (this.isIntercepted(controller.metatype.prototype[key])) {
-          const interceptors = this.getInterceptors(controller.metatype.prototype[key]).map(
-            (interceptor) => {
-              const prototype = interceptor['prototype'] ?? interceptor;
-              const traceName = `Interceptor->${controller.name}.${controller.metatype.prototype[key].name}.${prototype.constructor.name}`;
-              prototype.intercept = this.wrap(
-                prototype.intercept,
-                traceName,
-                {
-                  controller: controller.name,
-                  interceptor: prototype.constructor.name,
-                  method: controller.metatype.prototype[key].name,
-                  scope: 'CONTROLLER_METHOD',
-                },
-              );
-              Object.assign(prototype, this);
-              this.loggerService.log(
-                `Mapped ${traceName}`,
-                this.constructor.name,
-              );
-              return interceptor;
-            },
-          );
+          const interceptors = this.getInterceptors(
+            controller.metatype.prototype[key],
+          ).map((interceptor) => {
+            const prototype = interceptor['prototype'] ?? interceptor;
+            const traceName = `Interceptor->${controller.name}.${controller.metatype.prototype[key].name}.${prototype.constructor.name}`;
+            prototype.intercept = this.wrap(prototype.intercept, traceName, {
+              controller: controller.name,
+              interceptor: prototype.constructor.name,
+              method: controller.metatype.prototype[key].name,
+              scope: 'CONTROLLER_METHOD',
+            });
+            Object.assign(prototype, this);
+            this.loggerService.log(
+              `Mapped ${traceName}`,
+              this.constructor.name,
+            );
+            return interceptor;
+          });
 
           if (interceptors.length > 0) {
             Reflect.defineMetadata(

@@ -3,16 +3,15 @@ import { OpenTelemetryModule } from '../../OpenTelemetryModule';
 import { NoopSpanProcessor } from '@opentelemetry/sdk-trace-node';
 import {
   CallHandler,
-  CanActivate,
   Controller,
   ExecutionContext,
-  Get, Injectable,
+  Get,
+  Injectable,
   NestInterceptor,
-  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import * as request from 'supertest';
-import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 import { Span } from '../Decorators/Span';
 import { Tracing } from '../../Tracing';
 import { InterceptorInjector } from './InterceptorInjector';
@@ -64,7 +63,9 @@ describe('Tracing Interceptor Injector Test', () => {
 
     //then
     expect(exporterSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'Interceptor->HelloController.TestInterceptor' }),
+      expect.objectContaining({
+        name: 'Interceptor->HelloController.TestInterceptor',
+      }),
       expect.any(Object),
     );
 
