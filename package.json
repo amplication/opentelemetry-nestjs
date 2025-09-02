@@ -42,6 +42,9 @@
     "test:cov": "jest --coverage --coverageReporters=text-summary",
     "semantic-release": "semantic-release"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {},
   "devDependencies": {
     "@nestjs/cli": "^10.3.2",
