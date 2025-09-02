@@ -2,11 +2,10 @@ import { Test } from '@nestjs/testing';
 import { Tracing } from '../../Tracing';
 import { OpenTelemetryModule } from '../../OpenTelemetryModule';
 import { NoopSpanProcessor } from '@opentelemetry/sdk-trace-node';
-import { ConsoleLogger, Controller, Get, Injectable } from '@nestjs/common';
+import { Controller, Get, Injectable } from '@nestjs/common';
 import { Span } from '../Decorators/Span';
 import * as request from 'supertest';
 import { ControllerInjector } from './ControllerInjector';
-import { Span as OTelSpan } from '@opentelemetry/api';
 
 describe('Base Trace Injector Test', () => {
   const sdkModule = OpenTelemetryModule.forRoot([ControllerInjector]);
@@ -46,18 +45,12 @@ describe('Base Trace Injector Test', () => {
       }
     }
 
-    const logger = new ConsoleLogger();
-    logger.setLogLevels(['debug', 'log', 'error', 'warn', 'verbose', 'fatal']);
     const context = await Test.createTestingModule({
       imports: [sdkModule],
       providers: [HelloService],
       controllers: [HelloController],
-    })
-      .setLogger(logger)
-      .compile();
-    const app = context.createNestApplication({
-      logger: ['debug', 'log', 'error', 'warn', 'verbose', 'fatal'],
-    });
+    }).compile();
+    const app = context.createNestApplication();
     await app.init();
 
     //when

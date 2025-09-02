@@ -21,7 +21,6 @@ export class ControllerInjector extends BaseTraceInjector implements Injector {
       );
 
       for (const key of keys) {
-        console.log("KEYS", key)
         if (
           !this.isDecorated(controller.metatype.prototype[key]) &&
           !this.isAffected(controller.metatype.prototype[key]) &&
@@ -29,7 +28,6 @@ export class ControllerInjector extends BaseTraceInjector implements Injector {
             this.isMicroservice(controller.metatype.prototype[key]))
         ) {
           const traceName = `Controller->${controller.name}.${controller.metatype.prototype[key].name}`;
-          console.log("TRACING", traceName)
           const method = this.wrap(
             controller.metatype.prototype[key],
             traceName,
@@ -40,7 +38,6 @@ export class ControllerInjector extends BaseTraceInjector implements Injector {
             SpanKind.SERVER,
           );
           this.reDecorate(controller.metatype.prototype[key], method);
-          console.log('redecorated', method)
 
           controller.metatype.prototype[key] = method;
           this.loggerService.log(
