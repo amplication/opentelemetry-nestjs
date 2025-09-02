@@ -153,7 +153,7 @@ describe('Tracing Interceptor Injector Test', () => {
     await app.close();
   });
 
-  it(`should trace global guard`, async () => {
+  it(`should trace global interceptor`, async () => {
     // given
     @Injectable()
     class TestInterceptor implements NestInterceptor {
@@ -179,6 +179,50 @@ describe('Tracing Interceptor Injector Test', () => {
           provide: APP_INTERCEPTOR,
           useClass: TestInterceptor,
         },
+      ],
+    }).compile();
+    const app = context.createNestApplication();
+    await app.init();
+
+    // when
+    await request(app.getHttpServer()).get('/hello').send().expect(200);
+
+    //then
+    expect(exporterSpy).toHaveBeenCalledWith(
+      expect.objectContaining({ name: 'Interceptor->Global->TestInterceptor' }),
+      expect.any(Object),
+    );
+
+    await app.close();
+  });
+
+  it(`should trace global useExisting interceptor`, async () => {
+    // given
+    @Injectable()
+    class TestInterceptor implements NestInterceptor {
+      intercept(
+        context: ExecutionContext,
+        next: CallHandler<any>,
+      ): Observable<any> | Promise<Observable<any>> {
+        return next.handle();
+      }
+    }
+
+    @Controller('hello')
+    class HelloController {
+      @Get()
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      hi() {}
+    }
+    const context = await Test.createTestingModule({
+      imports: [sdkModule],
+      controllers: [HelloController],
+      providers: [
+        {
+          provide: APP_INTERCEPTOR,
+          useExisting: TestInterceptor,
+        },
+        TestInterceptor,
       ],
     }).compile();
     const app = context.createNestApplication();

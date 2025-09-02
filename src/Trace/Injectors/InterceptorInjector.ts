@@ -49,10 +49,6 @@ export class InterceptorInjector extends BaseTraceInjector implements Injector {
       );
 
       for (const key of keys) {
-        console.log(
-          `Checking ${controller.name}.${key}`,
-          this.isIntercepted(controller.metatype.prototype[key]),
-        );
         if (this.isIntercepted(controller.metatype.prototype[key])) {
           const interceptors = this.getInterceptors(
             controller.metatype.prototype[key],
