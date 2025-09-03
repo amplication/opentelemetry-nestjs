@@ -21,12 +21,17 @@ export class InterceptorInjector extends BaseTraceInjector implements Injector {
           (interceptor) => {
             const prototype = interceptor['prototype'] ?? interceptor;
             const traceName = `${controller.name}.${prototype.constructor.name}`;
-            prototype.intercept = this.wrap(prototype.intercept, traceName, {
-              'nestjs.controller': controller.name,
-              'nestjs.type': 'interceptor',
-              'nestjs.provider': prototype.constructor.name,
-              'nestjs.scope': 'controller',
-            });
+            prototype.intercept = this.wrap(
+              prototype.intercept,
+              traceName,
+              {
+                'nestjs.controller': controller.name,
+                'nestjs.type': 'interceptor',
+                'nestjs.provider': prototype.constructor.name,
+                'nestjs.scope': 'controller',
+              },
+              { wrapObservable: true },
+            );
             Object.assign(prototype, this);
             this.loggerService.log(
               `Mapped ${traceName}`,
@@ -56,13 +61,18 @@ export class InterceptorInjector extends BaseTraceInjector implements Injector {
           ).map((interceptor) => {
             const prototype = interceptor['prototype'] ?? interceptor;
             const traceName = `${controller.name}.${controller.metatype.prototype[key].name}.${prototype.constructor.name}`;
-            prototype.intercept = this.wrap(prototype.intercept, traceName, {
-              'nestjs.type': 'interceptor',
-              'nestjs.controller': controller.name,
-              'nestjs.provider': prototype.constructor.name,
-              'nestjs.callback': controller.metatype.prototype[key].name,
-              'nestjs.scope': 'controller_method',
-            });
+            prototype.intercept = this.wrap(
+              prototype.intercept,
+              traceName,
+              {
+                'nestjs.type': 'interceptor',
+                'nestjs.controller': controller.name,
+                'nestjs.provider': prototype.constructor.name,
+                'nestjs.callback': controller.metatype.prototype[key].name,
+                'nestjs.scope': 'controller_method',
+              },
+              { wrapObservable: true },
+            );
             Object.assign(prototype, this);
             this.loggerService.log(
               `Mapped ${traceName}`,
@@ -103,6 +113,7 @@ export class InterceptorInjector extends BaseTraceInjector implements Injector {
             'nestjs.provider': provider.metatype.name,
             'nestjs.scope': 'global',
           },
+          { wrapObservable: true },
         );
         Object.assign(provider.metatype.prototype, this);
         this.loggerService.log(`Mapped ${traceName}`, this.constructor.name);

@@ -8,6 +8,8 @@ import {
 import { Constants } from '../Constants';
 import { TraceWrapperOptions } from './TraceWrapper.types';
 import { MetadataScanner } from '../MetaScanner';
+import { catchError, finalize, isObservable, Observable } from 'rxjs';
+import { isPromise } from 'rxjs/internal/util/isPromise';
 
 export class TraceWrapper {
   /**
@@ -53,9 +55,12 @@ export class TraceWrapper {
     prototype: Record<any, any>,
     traceName: string,
     attributes = {},
-    options: { kind?: SpanKind } = {},
+    options: { kind?: SpanKind; wrapObservable?: boolean } = {},
   ): Record<any, any> {
     let method;
+
+    const observableWrapper = (promise: Promise<unknown>, span: Span) =>
+      this.wrapObservable(promise, span);
 
     if (prototype.constructor.name === 'AsyncFunction') {
       method = {
@@ -67,12 +72,15 @@ export class TraceWrapper {
             { kind: options.kind },
             async (span) => {
               span.setAttributes(attributes);
-              return prototype
+              const promise = prototype
                 .apply(this, args)
-                .catch((error) => TraceWrapper.recordException(error, span))
-                .finally(() => {
-                  span.end();
-                });
+                .catch((error) => TraceWrapper.recordException(error, span));
+
+              if (options.wrapObservable) {
+                return observableWrapper(promise, span);
+              } else {
+                return promise.finally(() => span.end());
+              }
             },
           );
         },
@@ -89,7 +97,12 @@ export class TraceWrapper {
             (span) => {
               try {
                 span.setAttributes(attributes);
-                return prototype.apply(this, args);
+                const returnValue = prototype.apply(this, args);
+                if (options.wrapObservable) {
+                  return observableWrapper(returnValue, span);
+                } else {
+                  return returnValue;
+                }
               } catch (error) {
                 TraceWrapper.recordException(error, span);
               } finally {
@@ -125,5 +138,29 @@ export class TraceWrapper {
 
   private static affect(prototype) {
     Reflect.defineMetadata(Constants.TRACE_METADATA_ACTIVE, 1, prototype);
+  }
+
+  private static wrapObservable(
+    promiseOrObservable: unknown | Promise<unknown>,
+    span: Span,
+  ) {
+    if (isPromise(promiseOrObservable)) {
+      return promiseOrObservable.then((obs) => this.wrapObservable(obs, span));
+    }
+
+    if (isObservable(promiseOrObservable)) {
+      return (promiseOrObservable as Observable<unknown>).pipe(
+        catchError((error) => {
+          TraceWrapper.recordException(error, span);
+          throw error;
+        }),
+        finalize(() => span.end()),
+      );
+    } else {
+      span.end();
+    }
+
+    // Did not receive what we expected, let's just do nothing then.
+    return promiseOrObservable;
   }
 }

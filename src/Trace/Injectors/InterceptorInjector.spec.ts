@@ -15,7 +15,7 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 import { Span } from '../Decorators/Span';
 import { Tracing } from '../../Tracing';
 import { InterceptorInjector } from './InterceptorInjector';
-import { Observable } from 'rxjs';
+import { delay, Observable, switchMap, timer } from 'rxjs';
 
 describe('Tracing Interceptor Injector Test', () => {
   const sdkModule = OpenTelemetryModule.forRoot([InterceptorInjector]);
@@ -75,6 +75,56 @@ describe('Tracing Interceptor Injector Test', () => {
       }),
       expect.any(Object),
     );
+
+    await app.close();
+  });
+
+  it(`should span the entire interceptor observable`, async () => {
+    // given
+    @Injectable()
+    class TestInterceptor implements NestInterceptor {
+      intercept(
+        context: ExecutionContext,
+        next: CallHandler,
+      ): Observable<any> | Promise<Observable<any>> {
+        return timer(1000).pipe(switchMap(() => next.handle()));
+      }
+    }
+
+    @UseInterceptors(TestInterceptor)
+    @Controller('hello')
+    class HelloController {
+      @Get()
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      hi() {}
+    }
+
+    function hrTimeToMs([sec, nano]: [number, number]): number {
+      return sec * 1000 + nano / 1e6;
+    }
+
+    const context = await Test.createTestingModule({
+      imports: [sdkModule],
+      controllers: [HelloController],
+    }).compile();
+    const app = context.createNestApplication();
+    await app.init();
+
+    // when
+    await request(app.getHttpServer()).get('/hello').send().expect(200);
+
+    //then
+    expect(exporterSpy).toHaveBeenCalledTimes(1);
+
+    const firstCallfirstArg = exporterSpy.mock.calls[0][0];
+
+    expect(firstCallfirstArg).toBeDefined();
+    expect(firstCallfirstArg.startTime).toBeDefined();
+    expect(firstCallfirstArg.endTime).toBeDefined();
+    expect(
+      hrTimeToMs(firstCallfirstArg.endTime) -
+        hrTimeToMs(firstCallfirstArg.startTime),
+    ).toBeGreaterThan(1);
 
     await app.close();
   });
