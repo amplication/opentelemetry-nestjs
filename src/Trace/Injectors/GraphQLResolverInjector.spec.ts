@@ -125,12 +125,15 @@ describe('Tracing Decorator Injector Test', () => {
 
     //then
     expect(exporterSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'HelloService.hi', attributes: {
+      expect.objectContaining({
+        name: 'HelloService.hi',
+        attributes: {
           'nestjs.callback': 'hi',
           'nestjs.provider': 'HelloService',
           'nestjs.resolver': 'subscription',
           'nestjs.type': 'graphql_resolver',
-        }, }),
+        },
+      }),
       expect.any(Object),
     );
 
@@ -166,7 +169,7 @@ describe('Tracing Decorator Injector Test', () => {
     helloService.hi();
 
     //then
-    expect(exporterSpy).not.toHaveBeenCalled()
+    expect(exporterSpy).not.toHaveBeenCalled();
 
     await app.close();
   });

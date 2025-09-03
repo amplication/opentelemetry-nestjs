@@ -318,16 +318,16 @@ describe('Tracing Controller Injector Test', () => {
       await request(app.getHttpServer()).get('/hello').send().expect(200);
 
       // then
-      expect(exporterSpy).toHaveBeenCalledTimes(1)
+      expect(exporterSpy).toHaveBeenCalledTimes(1);
       await waitForExpect(() =>
         expect(exporterSpy).toHaveBeenCalledWith(
           expect.objectContaining({
             name: 'HelloController.SLM_CNM',
             attributes: {
-              "nestjs.callback": "hi",
-              "nestjs.controller": "HelloController",
-              "nestjs.type": "controller_method",
-              "nestjs.name": "SLM_CNM"
+              'nestjs.callback': 'hi',
+              'nestjs.controller': 'HelloController',
+              'nestjs.type': 'controller_method',
+              'nestjs.name': 'SLM_CNM',
             },
           }),
           expect.any(Object),

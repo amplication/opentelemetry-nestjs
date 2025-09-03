@@ -82,12 +82,14 @@ describe('Tracing Event Emitter Injector Test', () => {
 
     //then
     expect(exporterSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'HelloService.untraceable', attributes: {
-          "nestjs.callback": "hi",
-          "nestjs.name": "untraceable",
-          "nestjs.provider": "HelloService",
-          "nestjs.type": "custom"
-        }
+      expect.objectContaining({
+        name: 'HelloService.untraceable',
+        attributes: {
+          'nestjs.callback': 'hi',
+          'nestjs.name': 'untraceable',
+          'nestjs.provider': 'HelloService',
+          'nestjs.type': 'custom',
+        },
       }),
       expect.any(Object),
     );

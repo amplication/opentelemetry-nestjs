@@ -142,12 +142,12 @@ describe('Tracing Guard Injector Test', () => {
       expect.objectContaining({
         name: 'HelloController.hi.VeyselEfendi',
         attributes: {
-          "nestjs.callback": "hi",
-          "nestjs.controller": "HelloController",
-          "nestjs.provider": "VeyselEfendi",
-          "nestjs.scope": "controller_method",
-          "nestjs.type": "guard"
-        }
+          'nestjs.callback': 'hi',
+          'nestjs.controller': 'HelloController',
+          'nestjs.provider': 'VeyselEfendi',
+          'nestjs.scope': 'controller_method',
+          'nestjs.type': 'guard',
+        },
       }),
       expect.any(Object),
     );
@@ -188,11 +188,14 @@ describe('Tracing Guard Injector Test', () => {
 
     //then
     expect(exporterSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'VeyselEfendi', attributes: {
-          "nestjs.provider": "VeyselEfendi",
-          "nestjs.scope": "global",
-          "nestjs.type": "guard"
-        } }),
+      expect.objectContaining({
+        name: 'VeyselEfendi',
+        attributes: {
+          'nestjs.provider': 'VeyselEfendi',
+          'nestjs.scope': 'global',
+          'nestjs.type': 'guard',
+        },
+      }),
       expect.any(Object),
     );
 

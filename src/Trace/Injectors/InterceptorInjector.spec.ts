@@ -15,7 +15,7 @@ import { APP_INTERCEPTOR } from '@nestjs/core';
 import { Span } from '../Decorators/Span';
 import { Tracing } from '../../Tracing';
 import { InterceptorInjector } from './InterceptorInjector';
-import { delay, Observable, switchMap, timer } from 'rxjs';
+import { Observable, switchMap, timer } from 'rxjs';
 
 describe('Tracing Interceptor Injector Test', () => {
   const sdkModule = OpenTelemetryModule.forRoot([InterceptorInjector]);
