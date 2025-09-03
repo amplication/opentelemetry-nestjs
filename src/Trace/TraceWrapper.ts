@@ -45,6 +45,7 @@ export class TraceWrapper {
    * @param prototype prototype of the method to wrap
    * @param traceName Span/Segment name
    * @param attributes Additional attributes to add to the span
+   * @param options Span options. Only supports spanKind
    * @returns The wrapped method
    */
   static wrap(
@@ -52,7 +53,7 @@ export class TraceWrapper {
     prototype: Record<any, any>,
     traceName: string,
     attributes = {},
-    kind?: SpanKind,
+    options: { kind?: SpanKind } = {},
   ): Record<any, any> {
     let method;
 
@@ -63,7 +64,7 @@ export class TraceWrapper {
 
           return await tracer.startActiveSpan(
             traceName,
-            { kind },
+            { kind: options.kind },
             async (span) => {
               span.setAttributes(attributes);
               return prototype
@@ -83,7 +84,7 @@ export class TraceWrapper {
 
           return tracer.startActiveSpan(
             traceName,
-            { kind },
+            { kind: options.kind },
             context.active(),
             (span) => {
               try {

@@ -37,7 +37,9 @@ export class DecoratorInjector extends BaseTraceInjector implements Injector {
               'nestjs.type': 'custom',
               'nestjs.provider': provider.name,
               'nestjs.callback': provider.metatype.prototype[key].name,
-              'nestjs.name': this.getTraceName(provider.metatype.prototype[key])
+              'nestjs.name': this.getTraceName(
+                provider.metatype.prototype[key],
+              ),
             },
           );
           this.loggerService.log(
@@ -73,7 +75,9 @@ export class DecoratorInjector extends BaseTraceInjector implements Injector {
               'nestjs.type': 'controller_method',
               'nestjs.controller': controller.name,
               'nestjs.callback': controller.metatype.prototype[key].name,
-              'nestjs.name': this.getTraceName(controller.metatype.prototype[key])
+              'nestjs.name': this.getTraceName(
+                controller.metatype.prototype[key],
+              ),
             },
           );
           this.reDecorate(controller.metatype.prototype[key], method);

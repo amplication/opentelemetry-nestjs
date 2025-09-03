@@ -77,9 +77,9 @@ export class BaseTraceInjector {
     prototype: Record<any, any>,
     traceName,
     attributes = {},
-    spanKind?: SpanKind,
+    options?: { kind?: SpanKind },
   ) {
-    return TraceWrapper.wrap(prototype, traceName, attributes, spanKind);
+    return TraceWrapper.wrap(prototype, traceName, attributes, options);
   }
 
   protected affect(prototype) {

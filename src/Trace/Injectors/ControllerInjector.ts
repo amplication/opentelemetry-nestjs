@@ -36,7 +36,7 @@ export class ControllerInjector extends BaseTraceInjector implements Injector {
               'nestjs.controller': controller.name,
               'nestjs.callback': controller.metatype.prototype[key].name,
             },
-            SpanKind.SERVER,
+            { kind: SpanKind.SERVER },
           );
           this.reDecorate(controller.metatype.prototype[key], method);
 
