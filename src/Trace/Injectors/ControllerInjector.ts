@@ -27,13 +27,14 @@ export class ControllerInjector extends BaseTraceInjector implements Injector {
           (this.isPath(controller.metatype.prototype[key]) ||
             this.isMicroservice(controller.metatype.prototype[key]))
         ) {
-          const traceName = `Controller->${controller.name}.${controller.metatype.prototype[key].name}`;
+          const traceName = `${controller.name}.${controller.metatype.prototype[key].name}`;
           const method = this.wrap(
             controller.metatype.prototype[key],
             traceName,
             {
-              controller: controller.name,
-              method: controller.metatype.prototype[key].name,
+              'nestjs.type': 'handler',
+              'nestjs.controller': controller.name,
+              'nestjs.callback': controller.metatype.prototype[key].name,
             },
             SpanKind.SERVER,
           );

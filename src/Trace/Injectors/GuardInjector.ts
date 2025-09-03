@@ -19,11 +19,12 @@ export class GuardInjector extends BaseTraceInjector implements Injector {
       if (this.isGuarded(controller.metatype)) {
         const guards = this.getGuards(controller.metatype).map((guard) => {
           const prototype = guard['prototype'] ?? guard;
-          const traceName = `Guard->${controller.name}.${prototype.constructor.name}`;
+          const traceName = `${controller.name}.${prototype.constructor.name}`;
           prototype.canActivate = this.wrap(prototype.canActivate, traceName, {
-            controller: controller.name,
-            guard: prototype.constructor.name,
-            scope: 'CONTROLLER',
+            'nestjs.controller': controller.name,
+            'nestjs.type': 'guard',
+            'nestjs.provider': prototype.constructor.name,
+            'nestjs.scope': 'controller',
           });
           Object.assign(prototype, this);
           this.loggerService.log(`Mapped ${traceName}`, this.constructor.name);
@@ -44,15 +45,16 @@ export class GuardInjector extends BaseTraceInjector implements Injector {
           const guards = this.getGuards(controller.metatype.prototype[key]).map(
             (guard) => {
               const prototype = guard['prototype'] ?? guard;
-              const traceName = `Guard->${controller.name}.${controller.metatype.prototype[key].name}.${prototype.constructor.name}`;
+              const traceName = `${controller.name}.${controller.metatype.prototype[key].name}.${prototype.constructor.name}`;
               prototype.canActivate = this.wrap(
                 prototype.canActivate,
                 traceName,
                 {
-                  controller: controller.name,
-                  guard: prototype.constructor.name,
-                  method: controller.metatype.prototype[key].name,
-                  scope: 'CONTROLLER_METHOD',
+                  'nestjs.controller': controller.name,
+                  'nestjs.type': 'guard',
+                  'nestjs.provider': prototype.constructor.name,
+                  'nestjs.callback': controller.metatype.prototype[key].name,
+                  'nestjs.scope': 'controller_method',
                 },
               );
               Object.assign(prototype, this);
@@ -87,13 +89,14 @@ export class GuardInjector extends BaseTraceInjector implements Injector {
         provider.token.includes(APP_GUARD) &&
         !this.isAffected(provider.metatype.prototype.canActivate)
       ) {
-        const traceName = `Guard->Global->${provider.metatype.name}`;
+        const traceName = provider.metatype.name;
         provider.metatype.prototype.canActivate = this.wrap(
           provider.metatype.prototype.canActivate,
           traceName,
           {
-            guard: provider.metatype.name,
-            scope: 'GLOBAL',
+            'nestjs.type': 'guard',
+            'nestjs.provider': provider.metatype.name,
+            'nestjs.scope': 'global',
           },
         );
         Object.assign(provider.metatype.prototype, this);

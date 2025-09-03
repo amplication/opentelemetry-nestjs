@@ -38,6 +38,7 @@ describe('Tracing Guard Injector Test', () => {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       hi() {}
     }
+
     const context = await Test.createTestingModule({
       imports: [sdkModule],
       controllers: [HelloController],
@@ -50,7 +51,15 @@ describe('Tracing Guard Injector Test', () => {
 
     //then
     expect(exporterSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'Guard->HelloController.VeyselEfendi' }),
+      expect.objectContaining({
+        name: 'HelloController.VeyselEfendi',
+        attributes: {
+          'nestjs.controller': 'HelloController',
+          'nestjs.provider': 'VeyselEfendi',
+          'nestjs.scope': 'controller',
+          'nestjs.type': 'guard',
+        },
+      }),
       expect.any(Object),
     );
 
@@ -72,6 +81,7 @@ describe('Tracing Guard Injector Test', () => {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       hi() {}
     }
+
     const context = await Test.createTestingModule({
       imports: [sdkModule],
       controllers: [HelloController],
@@ -85,7 +95,14 @@ describe('Tracing Guard Injector Test', () => {
     //then
     expect(exporterSpy).toHaveBeenCalledWith(
       expect.objectContaining({
-        name: 'Guard->HelloController.hi.VeyselEfendi',
+        name: 'HelloController.hi.VeyselEfendi',
+        attributes: {
+          'nestjs.controller': 'HelloController',
+          'nestjs.callback': 'hi',
+          'nestjs.provider': 'VeyselEfendi',
+          'nestjs.scope': 'controller_method',
+          'nestjs.type': 'guard',
+        },
       }),
       expect.any(Object),
     );
@@ -109,6 +126,7 @@ describe('Tracing Guard Injector Test', () => {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       hi() {}
     }
+
     const context = await Test.createTestingModule({
       imports: [sdkModule],
       controllers: [HelloController],
@@ -122,7 +140,14 @@ describe('Tracing Guard Injector Test', () => {
     //then
     expect(exporterSpy).toHaveBeenCalledWith(
       expect.objectContaining({
-        name: 'Guard->HelloController.hi.VeyselEfendi',
+        name: 'HelloController.hi.VeyselEfendi',
+        attributes: {
+          "nestjs.callback": "hi",
+          "nestjs.controller": "HelloController",
+          "nestjs.provider": "VeyselEfendi",
+          "nestjs.scope": "controller_method",
+          "nestjs.type": "guard"
+        }
       }),
       expect.any(Object),
     );
@@ -137,12 +162,14 @@ describe('Tracing Guard Injector Test', () => {
         return true;
       }
     }
+
     @Controller('hello')
     class HelloController {
       @Get()
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       hi() {}
     }
+
     const context = await Test.createTestingModule({
       imports: [sdkModule],
       controllers: [HelloController],
@@ -161,7 +188,11 @@ describe('Tracing Guard Injector Test', () => {
 
     //then
     expect(exporterSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'Guard->Global->VeyselEfendi' }),
+      expect.objectContaining({ name: 'VeyselEfendi', attributes: {
+          "nestjs.provider": "VeyselEfendi",
+          "nestjs.scope": "global",
+          "nestjs.type": "guard"
+        } }),
       expect.any(Object),
     );
 

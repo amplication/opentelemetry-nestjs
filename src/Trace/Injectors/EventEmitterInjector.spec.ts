@@ -30,6 +30,7 @@ describe('Tracing Event Emitter Injector Test', () => {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       hi() {}
     }
+
     const context = await Test.createTestingModule({
       imports: [sdkModule],
       providers: [HelloService],
@@ -43,7 +44,15 @@ describe('Tracing Event Emitter Injector Test', () => {
 
     //then
     expect(exporterSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'Event->HelloService.selam' }),
+      expect.objectContaining({
+        name: 'HelloService.selam',
+        attributes: {
+          'nestjs.callback': 'hi',
+          'nestjs.event': 'selam',
+          'nestjs.provider': 'HelloService',
+          'nestjs.type': 'event',
+        },
+      }),
       expect.any(Object),
     );
 
@@ -59,6 +68,7 @@ describe('Tracing Event Emitter Injector Test', () => {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       hi() {}
     }
+
     const context = await Test.createTestingModule({
       imports: [sdkModule],
       providers: [HelloService],
@@ -72,7 +82,13 @@ describe('Tracing Event Emitter Injector Test', () => {
 
     //then
     expect(exporterSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'Provider->HelloService.untraceable' }),
+      expect.objectContaining({ name: 'HelloService.untraceable', attributes: {
+          "nestjs.callback": "hi",
+          "nestjs.name": "untraceable",
+          "nestjs.provider": "HelloService",
+          "nestjs.type": "custom"
+        }
+      }),
       expect.any(Object),
     );
 

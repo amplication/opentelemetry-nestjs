@@ -32,10 +32,13 @@ export class DecoratorInjector extends BaseTraceInjector implements Injector {
         ) {
           provider.metatype.prototype[key] = this.wrap(
             provider.metatype.prototype[key],
-            this.getPrefix(
-              provider.metatype.prototype[key],
-              `Provider->${provider.name}`,
-            ),
+            this.getPrefix(provider.metatype.prototype[key], provider.name),
+            {
+              'nestjs.type': 'custom',
+              'nestjs.provider': provider.name,
+              'nestjs.callback': provider.metatype.prototype[key].name,
+              'nestjs.name': this.getTraceName(provider.metatype.prototype[key])
+            },
           );
           this.loggerService.log(
             `Mapped ${provider.name}.${key}`,
@@ -65,10 +68,13 @@ export class DecoratorInjector extends BaseTraceInjector implements Injector {
         ) {
           const method = this.wrap(
             controller.metatype.prototype[key],
-            this.getPrefix(
-              controller.metatype.prototype[key],
-              `Controller->${controller.name}`,
-            ),
+            this.getPrefix(controller.metatype.prototype[key], controller.name),
+            {
+              'nestjs.type': 'controller_method',
+              'nestjs.controller': controller.name,
+              'nestjs.callback': controller.metatype.prototype[key].name,
+              'nestjs.name': this.getTraceName(controller.metatype.prototype[key])
+            },
           );
           this.reDecorate(controller.metatype.prototype[key], method);
 

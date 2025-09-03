@@ -33,11 +33,12 @@ export class EventEmitterInjector
           const eventName = this.getEventName(provider.metatype.prototype[key]);
           provider.metatype.prototype[key] = this.wrap(
             provider.metatype.prototype[key],
-            `Event->${provider.name}.${eventName}`,
+            `${provider.name}.${eventName}`,
             {
-              instance: provider.name,
-              method: provider.metatype.prototype[key].name,
-              event: eventName,
+              'nestjs.type': 'event',
+              'nestjs.provider': provider.name,
+              'nestjs.callback': provider.metatype.prototype[key].name,
+              'nestjs.event': eventName,
             },
           );
           this.loggerService.log(

@@ -30,6 +30,7 @@ describe('Tracing Decorator Injector Test', () => {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       hi() {}
     }
+
     const context = await Test.createTestingModule({
       imports: [sdkModule],
       providers: [HelloService],
@@ -42,7 +43,14 @@ describe('Tracing Decorator Injector Test', () => {
 
     //then
     expect(exporterSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'Provider->HelloService.hi' }),
+      expect.objectContaining({
+        name: 'HelloService.hi',
+        attributes: {
+          'nestjs.callback': 'hi',
+          'nestjs.provider': 'HelloService',
+          'nestjs.type': 'custom',
+        },
+      }),
       expect.any(Object),
     );
 
@@ -58,6 +66,7 @@ describe('Tracing Decorator Injector Test', () => {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       hi() {}
     }
+
     const context = await Test.createTestingModule({
       imports: [sdkModule],
       controllers: [HelloController],
@@ -70,7 +79,14 @@ describe('Tracing Decorator Injector Test', () => {
 
     //then
     expect(exporterSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'Controller->HelloController.hi' }),
+      expect.objectContaining({
+        name: 'HelloController.hi',
+        attributes: {
+          'nestjs.callback': 'hi',
+          'nestjs.controller': 'HelloController',
+          'nestjs.type': 'controller_method',
+        },
+      }),
       expect.any(Object),
     );
 
@@ -86,6 +102,7 @@ describe('Tracing Decorator Injector Test', () => {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       hi() {}
     }
+
     const context = await Test.createTestingModule({
       imports: [sdkModule],
       controllers: [HelloController],
@@ -99,7 +116,13 @@ describe('Tracing Decorator Injector Test', () => {
     //then
     expect(exporterSpy).toHaveBeenCalledWith(
       expect.objectContaining({
-        name: 'Controller->HelloController.MAVI_VATAN',
+        name: 'HelloController.MAVI_VATAN',
+        attributes: {
+          'nestjs.callback': 'hi',
+          'nestjs.controller': 'HelloController',
+          'nestjs.name': 'MAVI_VATAN',
+          'nestjs.type': 'controller_method',
+        },
       }),
       expect.any(Object),
     );
@@ -115,6 +138,7 @@ describe('Tracing Decorator Injector Test', () => {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       hi() {}
     }
+
     Reflect.defineMetadata(
       Constants.TRACE_METADATA_ACTIVE,
       1,
@@ -132,10 +156,7 @@ describe('Tracing Decorator Injector Test', () => {
     helloService.hi();
 
     //then
-    expect(exporterSpy).not.toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'Provider->HelloService.hi' }),
-      expect.any(Object),
-    );
+    expect(exporterSpy).not.toHaveBeenCalled();
 
     await app.close();
   });

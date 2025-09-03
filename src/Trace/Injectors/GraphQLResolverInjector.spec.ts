@@ -33,6 +33,7 @@ describe('Tracing Decorator Injector Test', () => {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       hi() {}
     }
+
     const context = await Test.createTestingModule({
       imports: [sdkModule],
       providers: [HelloService],
@@ -45,7 +46,15 @@ describe('Tracing Decorator Injector Test', () => {
 
     //then
     expect(exporterSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'Resolver->HelloService.hi' }),
+      expect.objectContaining({
+        name: 'HelloService.hi',
+        attributes: {
+          'nestjs.callback': 'hi',
+          'nestjs.provider': 'HelloService',
+          'nestjs.resolver': 'query',
+          'nestjs.type': 'graphql_resolver',
+        },
+      }),
       expect.any(Object),
     );
 
@@ -64,6 +73,7 @@ describe('Tracing Decorator Injector Test', () => {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       hi() {}
     }
+
     const context = await Test.createTestingModule({
       imports: [sdkModule],
       providers: [HelloService],
@@ -76,7 +86,15 @@ describe('Tracing Decorator Injector Test', () => {
 
     //then
     expect(exporterSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'Resolver->HelloService.hi' }),
+      expect.objectContaining({
+        name: 'HelloService.hi',
+        attributes: {
+          'nestjs.callback': 'hi',
+          'nestjs.provider': 'HelloService',
+          'nestjs.resolver': 'mutation',
+          'nestjs.type': 'graphql_resolver',
+        },
+      }),
       expect.any(Object),
     );
 
@@ -94,6 +112,7 @@ describe('Tracing Decorator Injector Test', () => {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       hi() {}
     }
+
     const context = await Test.createTestingModule({
       imports: [sdkModule],
       providers: [HelloService],
@@ -106,7 +125,12 @@ describe('Tracing Decorator Injector Test', () => {
 
     //then
     expect(exporterSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'Resolver->HelloService.hi' }),
+      expect.objectContaining({ name: 'HelloService.hi', attributes: {
+          'nestjs.callback': 'hi',
+          'nestjs.provider': 'HelloService',
+          'nestjs.resolver': 'subscription',
+          'nestjs.type': 'graphql_resolver',
+        }, }),
       expect.any(Object),
     );
 
@@ -124,6 +148,7 @@ describe('Tracing Decorator Injector Test', () => {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       hi() {}
     }
+
     Reflect.defineMetadata(
       Constants.TRACE_METADATA_ACTIVE,
       1,
@@ -141,10 +166,7 @@ describe('Tracing Decorator Injector Test', () => {
     helloService.hi();
 
     //then
-    expect(exporterSpy).not.toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'Provider->HelloService.hi' }),
-      expect.any(Object),
-    );
+    expect(exporterSpy).not.toHaveBeenCalled()
 
     await app.close();
   });

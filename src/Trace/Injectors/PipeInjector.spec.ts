@@ -28,6 +28,7 @@ describe('Tracing Pipe Injector Test', () => {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       async transform() {}
     }
+
     const context = await Test.createTestingModule({
       imports: [sdkModule],
       providers: [{ provide: APP_PIPE, useClass: HelloPipe }],
@@ -52,7 +53,14 @@ describe('Tracing Pipe Injector Test', () => {
 
     //then
     expect(exporterSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'Pipe->Global->HelloPipe' }),
+      expect.objectContaining({
+        name: 'HelloPipe',
+        attributes: {
+          'nestjs.provider': 'HelloPipe',
+          'nestjs.scope': 'global',
+          'nestjs.type': 'pipe',
+        },
+      }),
       expect.any(Object),
     );
 
@@ -73,6 +81,7 @@ describe('Tracing Pipe Injector Test', () => {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       async hi() {}
     }
+
     const context = await Test.createTestingModule({
       imports: [sdkModule],
       controllers: [HelloController],
@@ -87,7 +96,16 @@ describe('Tracing Pipe Injector Test', () => {
 
     //then
     expect(exporterSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'Pipe->HelloController.hi.HelloPipe' }),
+      expect.objectContaining({
+        name: 'HelloController.hi.HelloPipe',
+        attributes: {
+          'nestjs.callback': 'hi',
+          'nestjs.controller': 'HelloController',
+          'nestjs.provider': 'HelloPipe',
+          'nestjs.scope': 'controller_method',
+          'nestjs.type': 'pipe',
+        },
+      }),
       expect.any(Object),
     );
 

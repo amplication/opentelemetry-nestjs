@@ -30,34 +30,7 @@ describe('Tracing Scheduler Injector Test', () => {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       hi() {}
     }
-    const context = await Test.createTestingModule({
-      imports: [sdkModule],
-      providers: [HelloService],
-    }).compile();
-    const app = context.createNestApplication();
-    const helloService = app.get(HelloService);
-    await app.init();
 
-    // when
-    helloService.hi();
-
-    //then
-    expect(exporterSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'Scheduler->Cron->HelloService.hi' }),
-      expect.any(Object),
-    );
-
-    await app.close();
-  });
-
-  it(`should trace scheduled and named cron method`, async () => {
-    // given
-    @Injectable()
-    class HelloService {
-      @Cron('2 * * * * *', { name: 'AKSUNGUR' })
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
-      hi() {}
-    }
     const context = await Test.createTestingModule({
       imports: [sdkModule],
       providers: [HelloService],
@@ -72,7 +45,51 @@ describe('Tracing Scheduler Injector Test', () => {
     //then
     expect(exporterSpy).toHaveBeenCalledWith(
       expect.objectContaining({
-        name: 'Scheduler->Cron->HelloService.AKSUNGUR',
+        name: 'HelloService.hi',
+        attributes: {
+          'nestjs.provider': 'HelloService',
+          'nestjs.callback': 'hi',
+          'nestjs.schedule_type': 'interval',
+          'nestjs.type': 'schedule',
+        },
+      }),
+      expect.any(Object),
+    );
+
+    await app.close();
+  });
+
+  it(`should trace scheduled and named cron method`, async () => {
+    // given
+    @Injectable()
+    class HelloService {
+      @Cron('2 * * * * *', { name: 'AKSUNGUR' })
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      hi() {}
+    }
+
+    const context = await Test.createTestingModule({
+      imports: [sdkModule],
+      providers: [HelloService],
+    }).compile();
+    const app = context.createNestApplication();
+    const helloService = app.get(HelloService);
+    await app.init();
+
+    // when
+    helloService.hi();
+
+    //then
+    expect(exporterSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: 'HelloService.AKSUNGUR',
+        attributes: {
+          'nestjs.provider': 'HelloService',
+          'nestjs.callback': 'hi',
+          'nestjs.name': 'AKSUNGUR',
+          'nestjs.schedule_type': 'interval',
+          'nestjs.type': 'schedule',
+        },
       }),
       expect.any(Object),
     );
@@ -89,62 +106,7 @@ describe('Tracing Scheduler Injector Test', () => {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       hi() {}
     }
-    const context = await Test.createTestingModule({
-      imports: [sdkModule],
-      providers: [HelloService],
-    }).compile();
-    const app = context.createNestApplication();
-    const helloService = app.get(HelloService);
-    await app.init();
 
-    // when
-    helloService.hi();
-
-    //then
-    expect(exporterSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'Provider->HelloService.ORUC_REIS' }),
-      expect.any(Object),
-    );
-
-    await app.close();
-  });
-
-  it(`should trace scheduled interval method`, async () => {
-    // given
-    @Injectable()
-    class HelloService {
-      @Interval(100)
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
-      hi() {}
-    }
-    const context = await Test.createTestingModule({
-      imports: [sdkModule],
-      providers: [HelloService],
-    }).compile();
-    const app = context.createNestApplication();
-    const helloService = app.get(HelloService);
-    await app.init();
-
-    // when
-    helloService.hi();
-
-    //then
-    expect(exporterSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'Scheduler->Interval->HelloService.hi' }),
-      expect.any(Object),
-    );
-
-    await app.close();
-  });
-
-  it(`should trace scheduled and named interval method`, async () => {
-    // given
-    @Injectable()
-    class HelloService {
-      @Interval('FATIH', 100)
-      // eslint-disable-next-line @typescript-eslint/no-empty-function
-      hi() {}
-    }
     const context = await Test.createTestingModule({
       imports: [sdkModule],
       providers: [HelloService],
@@ -159,7 +121,88 @@ describe('Tracing Scheduler Injector Test', () => {
     //then
     expect(exporterSpy).toHaveBeenCalledWith(
       expect.objectContaining({
-        name: 'Scheduler->Interval->HelloService.FATIH',
+        name: 'HelloService.ORUC_REIS',
+        attributes: {
+          'nestjs.callback': 'hi',
+          'nestjs.name': 'ORUC_REIS',
+          'nestjs.provider': 'HelloService',
+          'nestjs.type': 'custom',
+        },
+      }),
+      expect.any(Object),
+    );
+
+    await app.close();
+  });
+
+  it(`should trace scheduled interval method`, async () => {
+    // given
+    @Injectable()
+    class HelloService {
+      @Interval(100)
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      hi() {}
+    }
+
+    const context = await Test.createTestingModule({
+      imports: [sdkModule],
+      providers: [HelloService],
+    }).compile();
+    const app = context.createNestApplication();
+    const helloService = app.get(HelloService);
+    await app.init();
+
+    // when
+    helloService.hi();
+
+    //then
+    expect(exporterSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: 'HelloService.hi',
+        attributes: {
+          'nestjs.callback': 'hi',
+          'nestjs.provider': 'HelloService',
+          'nestjs.schedule_type': 'interval',
+          'nestjs.type': 'schedule',
+        },
+      }),
+      expect.any(Object),
+    );
+
+    await app.close();
+  });
+
+  it(`should trace scheduled and named interval method`, async () => {
+    // given
+    @Injectable()
+    class HelloService {
+      @Interval('FATIH', 100)
+      // eslint-disable-next-line @typescript-eslint/no-empty-function
+      hi() {}
+    }
+
+    const context = await Test.createTestingModule({
+      imports: [sdkModule],
+      providers: [HelloService],
+    }).compile();
+    const app = context.createNestApplication();
+    const helloService = app.get(HelloService);
+    await app.init();
+
+    // when
+    helloService.hi();
+
+    //then
+    expect(exporterSpy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: 'HelloService.FATIH',
+        attributes: {
+          'nestjs.callback': 'hi',
+          'nestjs.name': 'FATIH',
+          'nestjs.provider': 'HelloService',
+          'nestjs.schedule_type': 'interval',
+          'nestjs.type': 'schedule',
+        },
       }),
       expect.any(Object),
     );
@@ -175,6 +218,7 @@ describe('Tracing Scheduler Injector Test', () => {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       hi() {}
     }
+
     const context = await Test.createTestingModule({
       imports: [sdkModule],
       providers: [HelloService],
@@ -188,7 +232,15 @@ describe('Tracing Scheduler Injector Test', () => {
 
     //then
     expect(exporterSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'Scheduler->Timeout->HelloService.hi' }),
+      expect.objectContaining({
+        name: 'HelloService.hi',
+        attributes: {
+          'nestjs.callback': 'hi',
+          'nestjs.provider': 'HelloService',
+          'nestjs.schedule_type': 'interval',
+          'nestjs.type': 'schedule',
+        },
+      }),
       expect.any(Object),
     );
 
@@ -203,6 +255,7 @@ describe('Tracing Scheduler Injector Test', () => {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       hi() {}
     }
+
     const context = await Test.createTestingModule({
       imports: [sdkModule],
       providers: [HelloService],
@@ -217,7 +270,14 @@ describe('Tracing Scheduler Injector Test', () => {
     //then
     expect(exporterSpy).toHaveBeenCalledWith(
       expect.objectContaining({
-        name: 'Scheduler->Timeout->HelloService.BARBAROS',
+        name: 'HelloService.BARBAROS',
+        attributes: {
+          'nestjs.callback': 'hi',
+          'nestjs.name': 'BARBAROS',
+          'nestjs.provider': 'HelloService',
+          'nestjs.schedule_type': 'interval',
+          'nestjs.type': 'schedule',
+        },
       }),
       expect.any(Object),
     );

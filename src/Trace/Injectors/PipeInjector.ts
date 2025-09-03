@@ -55,13 +55,14 @@ export class PipeInjector extends BaseTraceInjector implements Injector {
         provider.token.includes(APP_PIPE) &&
         !this.isAffected(provider.metatype.prototype.transform)
       ) {
-        const traceName = `Pipe->Global->${provider.metatype.name}`;
+        const traceName = provider.metatype.name;
         provider.metatype.prototype.transform = this.wrap(
           provider.metatype.prototype.transform,
           traceName,
           {
-            pipe: provider.metatype.name,
-            scope: 'GLOBAL',
+            'nestjs.type': 'pipe',
+            'nestjs.provider': provider.metatype.name,
+            'nestjs.scope': 'global',
           },
         );
         this.loggerService.log(`Mapped ${traceName}`, this.constructor.name);
@@ -77,12 +78,13 @@ export class PipeInjector extends BaseTraceInjector implements Injector {
     const pipeProto = pipe['prototype'] ?? pipe;
     if (this.isAffected(pipeProto.transform)) return pipe;
 
-    const traceName = `Pipe->${controller.name}.${prototype.name}.${pipeProto.constructor.name}`;
+    const traceName = `${controller.name}.${prototype.name}.${pipeProto.constructor.name}`;
     pipeProto.transform = this.wrap(pipeProto.transform, traceName, {
-      controller: controller.name,
-      method: prototype.name,
-      pipe: pipeProto.constructor.name,
-      scope: 'METHOD',
+      'nestjs.controller': controller.name,
+      'nestjs.type': 'pipe',
+      'nestjs.callback': prototype.name,
+      'nestjs.provider': pipeProto.constructor.name,
+      'nestjs.scope': 'controller_method',
     });
     this.loggerService.log(`Mapped ${traceName}`, this.constructor.name);
     return pipeProto;

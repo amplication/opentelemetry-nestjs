@@ -30,10 +30,23 @@ export class ScheduleInjector extends BaseTraceInjector implements Injector {
           !this.isAffected(provider.metatype.prototype[key]) &&
           this.isScheduler(provider.metatype.prototype[key])
         ) {
-          const name = this.getName(provider, provider.metatype.prototype[key]);
+          const name = this.getName(provider.metatype.prototype[key]);
           provider.metatype.prototype[key] = this.wrap(
             provider.metatype.prototype[key],
-            name,
+            `${provider.name}.${name}`,
+            {
+              'nestjs.type': 'schedule',
+              'nestjs.provider': provider.name,
+              'nestjs.callback': provider.metatype.prototype[key].name,
+              'nestjs.schedule_type': this.isCron(provider.metatype.prototype)
+                ? 'cron'
+                : this.isTimeout(provider.metatype.prototype)
+                  ? 'timeout'
+                  : 'interval',
+              ...(this.hasName(provider.metatype.prototype[key])
+                ? { 'nestjs.name': name }
+                : {}),
+            },
           );
           this.loggerService.log(`Mapped ${name}`, this.constructor.name);
         }
@@ -70,38 +83,39 @@ export class ScheduleInjector extends BaseTraceInjector implements Injector {
     );
   }
 
-  private getName(provider, prototype): string {
+  private getName(prototype): string {
     if (this.isCron(prototype)) {
       const options = Reflect.getMetadata(
         ScheduleInjector.SCHEDULE_CRON_OPTIONS,
         prototype,
       );
-      if (options && options.name) {
-        return `Scheduler->Cron->${provider.name}.${options.name}`;
-      }
-      return `Scheduler->Cron->${provider.name}.${prototype.name}`;
+      return options?.name ?? prototype.name;
     }
 
-    if (this.isTimeout(prototype)) {
+    if (this.isTimeout(prototype) || this.isInterval(prototype)) {
       const name = Reflect.getMetadata(
         ScheduleInjector.SCHEDULER_NAME,
         prototype,
       );
-      if (name) {
-        return `Scheduler->Timeout->${provider.name}.${name}`;
-      }
-      return `Scheduler->Timeout->${provider.name}.${prototype.name}`;
+      return name ?? prototype.name;
+    }
+  }
+
+  private hasName(prototype): boolean {
+    if (this.isCron(prototype)) {
+      const options = Reflect.getMetadata(
+        ScheduleInjector.SCHEDULE_CRON_OPTIONS,
+        prototype,
+      );
+      return !!options?.name;
     }
 
-    if (this.isInterval(prototype)) {
+    if (this.isTimeout(prototype) || this.isInterval(prototype)) {
       const name = Reflect.getMetadata(
         ScheduleInjector.SCHEDULER_NAME,
         prototype,
       );
-      if (name) {
-        return `Scheduler->Interval->${provider.name}.${name}`;
-      }
-      return `Scheduler->Interval->${provider.name}.${prototype.name}`;
+      return !!name;
     }
   }
 }

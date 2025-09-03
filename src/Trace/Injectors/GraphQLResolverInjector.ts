@@ -45,11 +45,17 @@ export class GraphQLResolverInjector
           isQueryMutationOrSubscription &&
           !this.isAffected(provider.metatype.prototype[key])
         ) {
-          const traceName = `Resolver->${provider.name}.${provider.metatype.prototype[key].name}`;
+          const traceName = `${provider.name}.${provider.metatype.prototype[key].name}`;
 
           provider.metatype.prototype[key] = this.wrap(
             provider.metatype.prototype[key],
             traceName,
+            {
+              'nestjs.type': 'graphql_resolver',
+              'nestjs.provider': provider.name,
+              'nestjs.resolver': String(resolverMeta).toLowerCase(),
+              'nestjs.callback': provider.metatype.prototype[key].name,
+            },
           );
           this.loggerService.log(
             `Mapped ${provider.name}.${key}`,

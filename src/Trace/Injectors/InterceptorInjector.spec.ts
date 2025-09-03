@@ -51,6 +51,7 @@ describe('Tracing Interceptor Injector Test', () => {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       hi() {}
     }
+
     const context = await Test.createTestingModule({
       imports: [sdkModule],
       controllers: [HelloController],
@@ -64,7 +65,13 @@ describe('Tracing Interceptor Injector Test', () => {
     //then
     expect(exporterSpy).toHaveBeenCalledWith(
       expect.objectContaining({
-        name: 'Interceptor->HelloController.TestInterceptor',
+        name: 'HelloController.TestInterceptor',
+        attributes: {
+          'nestjs.controller': 'HelloController',
+          'nestjs.provider': 'TestInterceptor',
+          'nestjs.scope': 'controller',
+          'nestjs.type': 'interceptor',
+        },
       }),
       expect.any(Object),
     );
@@ -91,6 +98,7 @@ describe('Tracing Interceptor Injector Test', () => {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       hi() {}
     }
+
     const context = await Test.createTestingModule({
       imports: [sdkModule],
       controllers: [HelloController],
@@ -104,7 +112,14 @@ describe('Tracing Interceptor Injector Test', () => {
     //then
     expect(exporterSpy).toHaveBeenCalledWith(
       expect.objectContaining({
-        name: 'Interceptor->HelloController.hi.TestInterceptor',
+        name: 'HelloController.hi.TestInterceptor',
+        attributes: {
+          'nestjs.controller': 'HelloController',
+          'nestjs.callback': 'hi',
+          'nestjs.provider': 'TestInterceptor',
+          'nestjs.scope': 'controller_method',
+          'nestjs.type': 'interceptor',
+        },
       }),
       expect.any(Object),
     );
@@ -132,6 +147,7 @@ describe('Tracing Interceptor Injector Test', () => {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       hi() {}
     }
+
     const context = await Test.createTestingModule({
       imports: [sdkModule],
       controllers: [HelloController],
@@ -145,7 +161,14 @@ describe('Tracing Interceptor Injector Test', () => {
     //then
     expect(exporterSpy).toHaveBeenCalledWith(
       expect.objectContaining({
-        name: 'Interceptor->HelloController.hi.TestInterceptor',
+        name: 'HelloController.hi.TestInterceptor',
+        attributes: {
+          'nestjs.callback': 'hi',
+          'nestjs.controller': 'HelloController',
+          'nestjs.provider': 'TestInterceptor',
+          'nestjs.scope': 'controller_method',
+          'nestjs.type': 'interceptor',
+        },
       }),
       expect.any(Object),
     );
@@ -171,6 +194,7 @@ describe('Tracing Interceptor Injector Test', () => {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       hi() {}
     }
+
     const context = await Test.createTestingModule({
       imports: [sdkModule],
       controllers: [HelloController],
@@ -189,7 +213,14 @@ describe('Tracing Interceptor Injector Test', () => {
 
     //then
     expect(exporterSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'Interceptor->Global->TestInterceptor' }),
+      expect.objectContaining({
+        name: 'TestInterceptor',
+        attributes: {
+          'nestjs.provider': 'TestInterceptor',
+          'nestjs.scope': 'global',
+          'nestjs.type': 'interceptor',
+        },
+      }),
       expect.any(Object),
     );
 
@@ -214,6 +245,7 @@ describe('Tracing Interceptor Injector Test', () => {
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       hi() {}
     }
+
     const context = await Test.createTestingModule({
       imports: [sdkModule],
       controllers: [HelloController],
@@ -233,7 +265,14 @@ describe('Tracing Interceptor Injector Test', () => {
 
     //then
     expect(exporterSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ name: 'Interceptor->Global->TestInterceptor' }),
+      expect.objectContaining({
+        name: 'TestInterceptor',
+        attributes: {
+          'nestjs.provider': 'TestInterceptor',
+          'nestjs.scope': 'global',
+          'nestjs.type': 'interceptor',
+        },
+      }),
       expect.any(Object),
     );
 

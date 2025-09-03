@@ -49,7 +49,12 @@ describe('Tracing Controller Injector Test', () => {
       await waitForExpect(() =>
         expect(exporterSpy).toHaveBeenCalledWith(
           expect.objectContaining({
-            name: 'Controller->HelloController.message',
+            name: 'HelloController.message',
+            attributes: {
+              'nestjs.callback': 'message',
+              'nestjs.controller': 'HelloController',
+              'nestjs.type': 'handler',
+            },
             kind: SpanKind.SERVER,
           }),
           expect.any(Object),
@@ -82,7 +87,12 @@ describe('Tracing Controller Injector Test', () => {
       await waitForExpect(() =>
         expect(exporterSpy).toHaveBeenCalledWith(
           expect.objectContaining({
-            name: 'Controller->HelloController.event',
+            name: 'HelloController.event',
+            attributes: {
+              'nestjs.callback': 'event',
+              'nestjs.controller': 'HelloController',
+              'nestjs.type': 'handler',
+            },
             kind: SpanKind.SERVER,
           }),
           expect.any(Object),
@@ -99,9 +109,11 @@ describe('Tracing Controller Injector Test', () => {
         @MessagePattern('time.us.*')
         // eslint-disable-next-line @typescript-eslint/no-empty-function
         message() {}
+
         @EventPattern('time.us.*')
         // eslint-disable-next-line @typescript-eslint/no-empty-function
         event() {}
+
         // eslint-disable-next-line @typescript-eslint/no-empty-function
         other() {}
       }
@@ -120,14 +132,15 @@ describe('Tracing Controller Injector Test', () => {
       helloController.other();
 
       //then
-      await waitForExpect(() =>
-        expect(exporterSpy).not.toHaveBeenCalledWith(
+      await waitForExpect(() => {
+        expect(exporterSpy).toHaveBeenCalledTimes(2);
+        return expect(exporterSpy).not.toHaveBeenCalledWith(
           expect.objectContaining({
-            name: 'Controller->HelloController.other',
+            name: 'HelloController.other',
           }),
           expect.any(Object),
-        ),
-      );
+        );
+      });
 
       await app.close();
     });
@@ -159,7 +172,12 @@ describe('Tracing Controller Injector Test', () => {
       await waitForExpect(() =>
         expect(exporterSpy).toHaveBeenCalledWith(
           expect.objectContaining({
-            name: 'Controller->HelloController.event',
+            name: 'HelloController.event',
+            attributes: {
+              'nestjs.callback': 'event',
+              'nestjs.controller': 'HelloController',
+              'nestjs.type': 'handler',
+            },
             status: {
               code: SpanStatusCode.ERROR,
               message: "I'm an error",
@@ -197,7 +215,12 @@ describe('Tracing Controller Injector Test', () => {
       await waitForExpect(() =>
         expect(exporterSpy).toHaveBeenCalledWith(
           expect.objectContaining({
-            name: 'Controller->HelloController.hi',
+            name: 'HelloController.hi',
+            attributes: {
+              'nestjs.callback': 'hi',
+              'nestjs.controller': 'HelloController',
+              'nestjs.type': 'handler',
+            },
             kind: SpanKind.SERVER,
           }),
           expect.any(Object),
@@ -231,7 +254,12 @@ describe('Tracing Controller Injector Test', () => {
       await waitForExpect(() =>
         expect(exporterSpy).toHaveBeenCalledWith(
           expect.objectContaining({
-            name: 'Controller->HelloController.hi',
+            name: 'HelloController.hi',
+            attributes: {
+              'nestjs.callback': 'hi',
+              'nestjs.controller': 'HelloController',
+              'nestjs.type': 'handler',
+            },
             status: {
               code: SpanStatusCode.ERROR,
               message: 'Forbidden',
@@ -264,12 +292,7 @@ describe('Tracing Controller Injector Test', () => {
       helloController.hi();
 
       //then
-      await waitForExpect(() =>
-        expect(exporterSpy).not.toHaveBeenCalledWith(
-          expect.objectContaining({ name: 'Controller->HelloController.hi' }),
-          expect.any(Object),
-        ),
-      );
+      expect(exporterSpy).not.toHaveBeenCalled();
 
       await app.close();
     });
@@ -295,10 +318,17 @@ describe('Tracing Controller Injector Test', () => {
       await request(app.getHttpServer()).get('/hello').send().expect(200);
 
       // then
+      expect(exporterSpy).toHaveBeenCalledTimes(1)
       await waitForExpect(() =>
         expect(exporterSpy).toHaveBeenCalledWith(
           expect.objectContaining({
-            name: 'Controller->HelloController.SLM_CNM',
+            name: 'HelloController.SLM_CNM',
+            attributes: {
+              "nestjs.callback": "hi",
+              "nestjs.controller": "HelloController",
+              "nestjs.type": "controller_method",
+              "nestjs.name": "SLM_CNM"
+            },
           }),
           expect.any(Object),
         ),
