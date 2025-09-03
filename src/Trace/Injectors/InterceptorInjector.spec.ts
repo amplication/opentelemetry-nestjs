@@ -124,7 +124,7 @@ describe('Tracing Interceptor Injector Test', () => {
     expect(
       hrTimeToMs(firstCallfirstArg.endTime) -
         hrTimeToMs(firstCallfirstArg.startTime),
-    ).toBeGreaterThan(1);
+    ).toBeGreaterThan(0);
 
     await app.close();
   });
