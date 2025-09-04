@@ -80,7 +80,7 @@ describe('Tracing Interceptor Injector Test', () => {
   });
 
   it(`should span the entire interceptor observable`, async () => {
-    // given
+    // given we have a handler that takes 1 second
     @Injectable()
     class TestInterceptor implements NestInterceptor {
       intercept(
@@ -113,7 +113,7 @@ describe('Tracing Interceptor Injector Test', () => {
     // when
     await request(app.getHttpServer()).get('/hello').send().expect(200);
 
-    //then
+    // then we should see a span with duration at least 1 second
     expect(exporterSpy).toHaveBeenCalledTimes(1);
 
     const firstCallfirstArg = exporterSpy.mock.calls[0][0];
@@ -124,7 +124,7 @@ describe('Tracing Interceptor Injector Test', () => {
     expect(
       hrTimeToMs(firstCallfirstArg.endTime) -
         hrTimeToMs(firstCallfirstArg.startTime),
-    ).toBeGreaterThan(0);
+    ).toBeGreaterThan(1000);
 
     await app.close();
   });

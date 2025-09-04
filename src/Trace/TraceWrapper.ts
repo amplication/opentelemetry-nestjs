@@ -106,7 +106,9 @@ export class TraceWrapper {
               } catch (error) {
                 TraceWrapper.recordException(error, span);
               } finally {
-                span.end();
+                if (!options.wrapObservable) {
+                  span.end();
+                }
               }
             },
           );
