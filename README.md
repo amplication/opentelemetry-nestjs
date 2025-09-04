@@ -6,30 +6,36 @@
 <a href="https://github.com/overbit/opentelemetry-nestjs"><img src="https://img.shields.io/github/stars/overbit/opentelemetry-nestjs.svg"/></a>
 </p>
 
-This library, initially forked from [@overbit/opentelemetry-nestjs](https://github.com/overbit/opentelemetry-nestjs.git), provides deeply integrated protocol-agnostic Nestjs [OpenTelemetry](https://opentelemetry.io/) instrumentations, metrics and SDK.
+This library, initially forked
+from [@overbit/opentelemetry-nestjs](https://github.com/overbit/opentelemetry-nestjs.git), provides deeply integrated
+protocol-agnostic Nestjs [OpenTelemetry](https://opentelemetry.io/) instrumentations, metrics and SDK.
 
 ## Description
 
-Nestjs is a protocol-agnostic framework. That's why this library can able to work with different protocols like RabbitMQ, GRPC and HTTP. Also you can observe and trace Nestjs specific layers like [Pipe](https://docs.nestjs.com/pipes), [Guard](https://docs.nestjs.com/guards), [Controller](https://docs.nestjs.com/controllers) and [Provider](https://docs.nestjs.com/providers).
+Nestjs is a protocol-agnostic framework. That's why this library can able to work with different protocols like
+RabbitMQ, GRPC and HTTP. Also you can observe and trace Nestjs specific layers
+like [Pipe](https://docs.nestjs.com/pipes), [Guard](https://docs.nestjs.com/guards), [Controller](https://docs.nestjs.com/controllers)
+and [Provider](https://docs.nestjs.com/providers).
 
 It also includes auto trace and metric instrumentations for some popular Nestjs libraries.
 
 - ### Distributed Tracing
-  - [Setup](#distributed-tracing-1)
-  - [Decorators](#trace-decorators)
-  - [Trace Providers](#trace-providers)
-  - [Trace Not @Injectable() classes](#trace-not-injectable-classes)
-  - [Auto Trace Instrumentations](#auto-trace-instrumentations)
-  - [Distributed Logging with Trace ID](#distributed-logging-with-trace-id)
+    - [Setup](#distributed-tracing-1)
+    - [Decorators](#trace-decorators)
+    - [Trace Providers](#trace-providers)
+    - [Trace Not @Injectable() classes](#trace-not-injectable-classes)
+    - [Auto Trace Instrumentations](#auto-trace-instrumentations)
+    - [Distributed Logging with Trace ID](#distributed-logging-with-trace-id)
 - ### Metrics
-  - [Setup](#metrics-1)
+    - [Setup](#metrics-1)
 
-OpenTelemetry Metrics currently experimental. So, this library doesn't support metric decorators and Auto Observers until it's stable. but if you want to use it, you can use OpenTelemetry API directly.
+OpenTelemetry Metrics currently experimental. So, this library doesn't support metric decorators and Auto Observers
+until it's stable. but if you want to use it, you can use OpenTelemetry API directly.
 
 Competability table for Nestjs versions.
 
 | Nestjs | Nestjs-OpenTelemetry |
-| ------ | -------------------- |
+|--------|----------------------|
 | 9.x    | 3.x.x                |
 | 8.x    | 2.x.x                |
 
@@ -55,7 +61,8 @@ import { OpenTelemetryModule } from '@helveg/opentelemetry-nestjs';
     }),
   ],
 })
-export class AppModule {}
+export class AppModule {
+}
 ```
 
 Async configuration example
@@ -75,14 +82,20 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     }),
   ],
 })
-export class AppModule {}
+export class AppModule {
+}
 ```
 
 ### Configuration types
 
-`Tracing.init()` takes [TracingConfig](https://github.com/helveg/opentelemetry-nestjs/blob/main/src/TracingConfig.interface.ts#L3) as a parameter, this type is inherited by [NodeSDKConfiguration](https://github.com/open-telemetry/opentelemetry-js/blob/745bd5c34d3961dc73873190adc763747e5e026d/experimental/packages/opentelemetry-sdk-node/src/types.ts#:~:text=NodeSDKConfiguration) so you can use same OpenTelemetry SDK parameter.
+`startNestJsOpenTelemetrySDK()`
+takes [TracingConfig](https://github.com/helveg/opentelemetry-nestjs/blob/main/src/TracingConfig.interface.ts#L3) as a
+parameter, this type is inherited
+by [NodeSDKConfiguration](https://github.com/open-telemetry/opentelemetry-js/blob/745bd5c34d3961dc73873190adc763747e5e026d/experimental/packages/opentelemetry-sdk-node/src/types.ts#:~:text=NodeSDKConfiguration)
+so you can use same OpenTelemetry SDK parameter.
 
-`OpenTelemetryModule.forRoot()` takes [OpenTelemetryModuleConfig](https://github.com/helveg/opentelemetry-nestjs/blob/main/src/OpenTelemetryModuleConfig.interface.ts#L5)
+`OpenTelemetryModule.forRoot()`
+takes [OpenTelemetryModuleConfig](https://github.com/helveg/opentelemetry-nestjs/blob/main/src/OpenTelemetryModuleConfig.interface.ts#L5)
 
 ### Default Parameters
 
@@ -147,13 +160,13 @@ import { Tracing } from '@helveg/opentelemetry-nestjs';
 import { ZipkinExporter } from '@opentelemetry/exporter-zipkin';
 import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-node';
 
-Tracing.init({
+startNestJsOpenTelemetrySDK({
   serviceName: 'my-service',
-  spanProcessor: new SimpleSpanProcessor(
+  spanProcessors: [new SimpleSpanProcessor(
     new ZipkinExporter({
       url: 'your-zipkin-url',
     }),
-  ),
+  )],
 });
 
 import { NestFactory } from '@nestjs/core';
@@ -167,10 +180,12 @@ import { OpenTelemetryModule } from '@helveg/opentelemetry-nestjs';
 @Module({
   imports: [OpenTelemetryModule.forRoot()],
 })
-export class AppModule {}
+export class AppModule {
+}
 ```
 
-After setup, your application will be instrumented, so that you can see almost every layer of application in ZipkinUI, including Guards, Pipes, Controllers even global layers like this
+After setup, your application will be instrumented, so that you can see almost every layer of application in ZipkinUI,
+including Guards, Pipes, Controllers even global layers like this
 
 ![Example trace output](./docs/trace-flow.jpeg)
 
@@ -180,7 +195,8 @@ List of supported official exporters [here](https://opentelemetry.io/docs/js/exp
 
 ### Trace Decorators
 
-This library supports auto instrumentations for Nestjs layers, but sometimes you need to define custom span for specific method blocks like providers methods. In this case `@Traceable` and `@Span` decorators will help you.
+This library supports auto instrumentations for Nestjs layers, but sometimes you need to define custom span for specific
+method blocks like providers methods. In this case `@Traceable` and `@Span` decorators will help you.
 
 #### `@Span`
 
@@ -205,7 +221,8 @@ Also `@Span` decorator takes `name` field as a parameter
 
 #### `@Traceable`
 
-`@Traceable` works like `@Span` but with the difference that it can be used at a class level to auto instrument every method of the class
+`@Traceable` works like `@Span` but with the difference that it can be used at a class level to auto instrument every
+method of the class
 
 ```ts
 import { Injectable } from '@nestjs/common';
@@ -224,7 +241,8 @@ export class AppService {
 
 ### Trace Providers
 
-In an advanced use cases, you need to access the native OpenTelemetry Trace provider to access them from Nestjs application context.
+In an advanced use cases, you need to access the native OpenTelemetry Trace provider to access them from Nestjs
+application context.
 
 ```ts
 import { Injectable } from '@nestjs/common';
@@ -232,7 +250,8 @@ import { Tracer } from '@helveg/opentelemetry-nestjs';
 
 @Injectable()
 export class AppService {
-  constructor(private readonly tracer: Tracer) {}
+  constructor(private readonly tracer: Tracer) {
+  }
 
   getHello(): string {
     const span = this.tracer.startSpan('important_section_start');
@@ -252,7 +271,8 @@ import { TraceService } from '@helveg/opentelemetry-nestjs';
 
 @Injectable()
 export class AppService {
-  constructor(private readonly traceService: TraceService) {}
+  constructor(private readonly traceService: TraceService) {
+  }
 
   getHello(): string {
     const span = this.traceService.startSpan('hello');
@@ -267,7 +287,9 @@ export class AppService {
 
 ### Auto Trace Instrumentations
 
-The most helpful part of this library is that you already get all of the instrumentations by default if you set up a module without any extra configuration. If you need to avoid some of them, you can use the `traceAutoInstrumentations` parameter.
+The most helpful part of this library is that you already get all of the instrumentations by default if you set up a
+module without any extra configuration. If you need to avoid some of them, you can use the `traceAutoInstrumentations`
+parameter.
 
 ```ts
 import { Module } from '@nestjs/common';
@@ -293,13 +315,14 @@ import {
     ]),
   ],
 })
-export class AppModule {}
+export class AppModule {
+}
 ```
 
 #### List of Instrumentation
 
-| Instance                | Description                                                                                                                                                                                                        |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Instance                       | Description                                                                                                                                                                                                        |
+|--------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `ControllerInstrumentation`    | Auto trace all of module controllers                                                                                                                                                                               |
 | `GuardInstrumentation`         | Auto trace all of module guards including global guards                                                                                                                                                            |
 | `PipeInstrumentation`          | Auto trace all of module pipes including global pipes                                                                                                                                                              |
@@ -311,7 +334,8 @@ export class AppModule {}
 
 #### Distributed Logging with Trace ID
 
-When you set up your environment with the `LoggerInstrumentation` class or default configuration, you can see trace id with every log.
+When you set up your environment with the `LoggerInstrumentation` class or default configuration, you can see trace id
+with every log.
 
 ![Example trace output](./docs/log.png)
 
@@ -344,7 +368,8 @@ const tracedInstance = TraceWrapper.trace(instance);
 
 ## Metrics
 
-Simple setup with Prometheus exporter, you need install [@opentelemetry/exporter-prometheus](https://www.npmjs.com/package/@opentelemetry/exporter-prometheus)
+Simple setup with Prometheus exporter, you need
+install [@opentelemetry/exporter-prometheus](https://www.npmjs.com/package/@opentelemetry/exporter-prometheus)
 
 ```ts
 // main.ts
@@ -352,7 +377,7 @@ Simple setup with Prometheus exporter, you need install [@opentelemetry/exporter
 import { Tracing } from '@helveg/opentelemetry-nestjs';
 import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
 
-Tracing.init({
+startNestJsOpenTelemetrySDK({
   serviceName: 'nestjs-opentelemetry-example',
   metricReader: new PrometheusExporter({
     endpoint: 'metrics',
@@ -364,7 +389,8 @@ import { NestFactory } from '@nestjs/core';
 // ....
 ```
 
-Now you can access Prometheus exporter with auto collected metrics [http://localhost:9464/metrics](http://localhost:9464/metrics).
+Now you can access Prometheus exporter with auto collected
+metrics [http://localhost:9464/metrics](http://localhost:9464/metrics).
 Also, you can find different exporters [here](https://opentelemetry.io/docs/js/exporters/)
 
 ---
@@ -383,17 +409,17 @@ import { CompositePropagator } from '@opentelemetry/core';
 import { JaegerPropagator } from '@opentelemetry/propagator-jaeger';
 import { B3InjectEncoding, B3Propagator } from '@opentelemetry/propagator-b3';
 
-Tracing.init({
+startNestJsOpenTelemetrySDK({
   serviceName: 'myservice-opentelemetry-example',
   metricReader: new PrometheusExporter({
     endpoint: 'metrics',
     port: 9464,
   }),
-  spanProcessor: new BatchSpanProcessor(
+  spanProcessors: [new BatchSpanProcessor(
     new OTLPTraceExporter({
       url: 'your-jaeger-url',
     }),
-  ),
+  )],
   textMapPropagator: new CompositePropagator({
     propagators: [
       new JaegerPropagator(),
@@ -417,7 +443,8 @@ import { OpenTelemetryModule } from '@helveg/opentelemetry-nestjs';
 @Module({
   imports: [OpenTelemetryModule.forRoot()],
 })
-export class AppModule {}
+export class AppModule {
+}
 ```
 
 ### AWS XRay
@@ -438,7 +465,7 @@ import { AWSXRayPropagator } from '@opentelemetry/propagator-aws-xray';
 import { AWSXRayIdGenerator } from '@opentelemetry/id-generator-aws-xray';
 import { AwsInstrumentation } from '@opentelemetry/instrumentation-aws-sdk';
 
-Tracing.init({
+startNestJsOpenTelemetrySDK({
   serviceName: 'myservice-opentelemetry-example',
   metricReader: new PrometheusExporter({
     endpoint: 'metrics',
@@ -452,7 +479,7 @@ Tracing.init({
     }),
   ],
   idGenerator: new AWSXRayIdGenerator(),
-  spanProcessor: new BatchSpanProcessor(new OTLPTraceExporter({})),
+  spanProcessors: [new BatchSpanProcessor(new OTLPTraceExporter({}))],
   textMapPropagator: new AWSXRayPropagator(),
 });
 
@@ -468,13 +495,16 @@ import { OpenTelemetryModule } from '@helveg/opentelemetry-nestjs';
 @Module({
   imports: [OpenTelemetryModule.forRoot()],
 })
-export class AppModule {}
+export class AppModule {
+}
 ```
 
 ## Migrating to v5
 
-In v5, the initialisation method for this library changed to support all the opentelemetry auto-instrumentation libraries like `@opentelemetry/instrumentation-graphql`.
-In v4 some of them where not working due to the fact that they were imported after the targeting library, `graphql` lib in the case of `@opentelemetry/instrumentation-graphql`.
+In v5, the initialisation method for this library changed to support all the opentelemetry auto-instrumentation
+libraries like `@opentelemetry/instrumentation-graphql`.
+In v4 some of them where not working due to the fact that they were imported after the targeting library, `graphql` lib
+in the case of `@opentelemetry/instrumentation-graphql`.
 
 ### v4
 
@@ -492,12 +522,13 @@ import { ControllerInstrumentation } from '@helveg/opentelemetry-nestjs';
   imports: [
     OpenTelemetryModule.forRoot({
       serviceName: 'my-service',
-      spanProcessor: new SimpleSpanProcessor(),
+      spanProcessors: [new SimpleSpanProcessor()],
       traceAutoInstrumentations: [ControllerInstrumentation],
     }),
   ],
 })
-export class AppModule {}
+export class AppModule {
+}
 ```
 
 ### v5
@@ -508,9 +539,9 @@ export class AppModule {}
 import { Tracing } from '@helveg/opentelemetry-nestjs';
 import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-node';
 
-Tracing.init({
+startNestJsOpenTelemetrySDK({
   serviceName: 'my-service',
-  spanProcessor: new SimpleSpanProcessor(),
+  spanProcessors: [new SimpleSpanProcessor()],
 });
 
 import { NestFactory } from '@nestjs/core';
@@ -525,5 +556,7 @@ import { ControllerInstrumentation } from '@helveg/opentelemetry-nestjs';
 @Module({
   imports: { instrumentation: [OpenTelemetryModule.forRoot([ControllerInstrumentation] })],
 })
-export class AppModule {}
+
+export class AppModule {
+}
 ```
