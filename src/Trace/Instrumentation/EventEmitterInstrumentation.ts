@@ -1,12 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Injector } from './Injector';
+import { Instrumentation } from './Instrumentation';
 import { ModulesContainer } from '@nestjs/core';
-import { BaseTraceInjector } from './BaseTraceInjector';
+import { BaseTraceInstrumentation } from './BaseTraceInstrumentation';
 
 @Injectable()
-export class EventEmitterInjector
-  extends BaseTraceInjector
-  implements Injector
+export class EventEmitterInstrumentation
+  extends BaseTraceInstrumentation
+  implements Instrumentation
 {
   private static EVENT_LISTENER_METADATA = 'EVENT_LISTENER_METADATA';
 
@@ -16,7 +16,7 @@ export class EventEmitterInjector
     super(modulesContainer);
   }
 
-  public inject() {
+  public setupInstrumentation() {
     const providers = this.getProviders();
 
     for (const provider of providers) {
@@ -52,14 +52,14 @@ export class EventEmitterInjector
 
   private isEventConsumer(prototype): boolean {
     return Reflect.getMetadata(
-      EventEmitterInjector.EVENT_LISTENER_METADATA,
+      EventEmitterInstrumentation.EVENT_LISTENER_METADATA,
       prototype,
     );
   }
 
   private getEventName(prototype): string {
     const metadata: Array<{ event: string }> = Reflect.getMetadata(
-      EventEmitterInjector.EVENT_LISTENER_METADATA,
+      EventEmitterInstrumentation.EVENT_LISTENER_METADATA,
       prototype,
     );
     return metadata[0].event;

@@ -2,13 +2,15 @@ import { Test } from '@nestjs/testing';
 import { OpenTelemetryModule } from '../../OpenTelemetryModule';
 import { NoopSpanProcessor } from '@opentelemetry/sdk-trace-node';
 import { Controller, Get, PipeTransform, UsePipes } from '@nestjs/common';
-import { PipeInjector } from './PipeInjector';
+import { PipeInstrumentation } from './PipeInstrumentation';
 import { PIPES_METADATA } from '@nestjs/common/constants';
 import { APP_PIPE } from '@nestjs/core';
 import { Tracing } from '../../Tracing';
 
-describe('Tracing Pipe Injector Test', () => {
-  const sdkModule = OpenTelemetryModule.forRoot([PipeInjector]);
+describe('Tracing Pipe Instrumentation Test', () => {
+  const sdkModule = OpenTelemetryModule.forRoot({
+    instrumentation: [PipeInstrumentation],
+  });
   let exporterSpy: jest.SpyInstance;
   const exporter = new NoopSpanProcessor();
   Tracing.init({ serviceName: 'a', spanProcessor: exporter });
@@ -35,11 +37,11 @@ describe('Tracing Pipe Injector Test', () => {
     }).compile();
     const app = context.createNestApplication();
     await app.init();
-    const injector = app.get(PipeInjector);
+    const instrument = app.get(PipeInstrumentation);
 
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore
-    const providers = injector.getProviders();
+    const providers = instrument.getProviders();
 
     // when
     for await (const provider of providers) {

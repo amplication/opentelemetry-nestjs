@@ -4,11 +4,13 @@ import { NoopSpanProcessor } from '@opentelemetry/sdk-trace-node';
 import { Injectable } from '@nestjs/common';
 import { Span } from '../Decorators/Span';
 import { Cron, Interval, Timeout } from '@nestjs/schedule';
-import { ScheduleInjector } from './ScheduleInjector';
+import { ScheduleInstrumentation } from './ScheduleInstrumentation';
 import { Tracing } from '../../Tracing';
 
-describe('Tracing Scheduler Injector Test', () => {
-  const sdkModule = OpenTelemetryModule.forRoot([ScheduleInjector]);
+describe('Tracing Scheduler Instrumentation Test', () => {
+  const sdkModule = OpenTelemetryModule.forRoot({
+    instrumentation: [ScheduleInstrumentation],
+  });
   let exporterSpy: jest.SpyInstance;
   const exporter = new NoopSpanProcessor();
   Tracing.init({ serviceName: 'a', spanProcessor: exporter });

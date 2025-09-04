@@ -1,22 +1,25 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ModulesContainer } from '@nestjs/core';
-import { Injector } from './Injector';
-import { BaseTraceInjector } from './BaseTraceInjector';
+import { Instrumentation } from './Instrumentation';
+import { BaseTraceInstrumentation } from './BaseTraceInstrumentation';
 
 @Injectable()
-export class DecoratorInjector extends BaseTraceInjector implements Injector {
+export class DecoratorInstrumentation
+  extends BaseTraceInstrumentation
+  implements Instrumentation
+{
   private readonly loggerService = new Logger();
 
   constructor(protected readonly modulesContainer: ModulesContainer) {
     super(modulesContainer);
   }
 
-  public inject() {
-    this.injectProviders();
-    this.injectControllers();
+  public setupInstrumentation() {
+    this.patchProviders();
+    this.patchControllers();
   }
 
-  private injectProviders() {
+  private patchProviders() {
     const providers = this.getProviders();
 
     for (const provider of providers) {
@@ -51,7 +54,7 @@ export class DecoratorInjector extends BaseTraceInjector implements Injector {
     }
   }
 
-  private injectControllers() {
+  private patchControllers() {
     const controllers = this.getControllers();
 
     for (const controller of controllers) {

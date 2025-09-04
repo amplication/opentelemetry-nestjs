@@ -4,13 +4,13 @@ import {
   RESOLVER_NAME_METADATA,
   RESOLVER_TYPE_METADATA,
 } from '@nestjs/graphql/dist/graphql.constants';
-import { BaseTraceInjector } from './BaseTraceInjector';
-import { Injector } from './Injector';
+import { BaseTraceInstrumentation } from './BaseTraceInstrumentation';
+import { Instrumentation } from './Instrumentation';
 
 @Injectable()
-export class GraphQLResolverInjector
-  extends BaseTraceInjector
-  implements Injector
+export class GraphQLResolverInstrumentation
+  extends BaseTraceInstrumentation
+  implements Instrumentation
 {
   private readonly loggerService = new Logger();
 
@@ -18,7 +18,7 @@ export class GraphQLResolverInjector
     super(modulesContainer);
   }
 
-  public inject() {
+  public setupInstrumentation() {
     const providers = this.getProviders();
     for (const provider of providers) {
       const isGraphQlResolver = Reflect.hasMetadata(

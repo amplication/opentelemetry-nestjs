@@ -1,50 +1,52 @@
 import { DynamicModule } from '@nestjs/common';
 import { TraceService } from './Trace/TraceService';
 import { Constants } from './Constants';
-import { OpenTelemetryModuleDefaultConfig } from './OpenTelemetryModuleConfigDefault';
-import { FactoryProvider } from '@nestjs/common/interfaces/modules/provider.interface';
+import { defaultInstrumentation } from './OpenTelemetryModuleConfigDefault';
+import {
+  FactoryProvider,
+  Provider,
+} from '@nestjs/common/interfaces/modules/provider.interface';
 import { OpenTelemetryModuleAsyncOption } from './OpenTelemetryModuleAsyncOption';
-import { DecoratorInjector } from './Trace/Injectors/DecoratorInjector';
+import { DecoratorInstrumentation } from './Trace/Instrumentation/DecoratorInstrumentation';
 import { ModuleRef } from '@nestjs/core';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { OpenTelemetryModuleConfig } from './OpenTelemetryModuleConfig.interface';
 import { Tracer } from './Trace/Tracer.types';
+import { Instrumentation } from './Trace/Instrumentation/Instrumentation.js';
 
 export class OpenTelemetryModule {
-  static forRoot(
-    traceAutoInjectors?: OpenTelemetryModuleConfig,
-  ): DynamicModule {
-    const injectors = traceAutoInjectors ?? OpenTelemetryModuleDefaultConfig;
+  static forRoot(config: OpenTelemetryModuleConfig = {}): DynamicModule {
+    const instrumentation = config.instrumentation ?? defaultInstrumentation;
 
     return {
       global: true,
       module: OpenTelemetryModule,
       imports: [EventEmitterModule.forRoot()],
       providers: [
-        ...injectors,
+        ...instrumentation,
         TraceService,
-        DecoratorInjector,
-        this.buildInjectors(injectors),
+        DecoratorInstrumentation,
+        this.buildInstrumentation(instrumentation),
         this.buildTracer(),
       ],
       exports: [TraceService, Tracer],
     };
   }
 
-  private static buildInjectors(
-    injectors: OpenTelemetryModuleConfig = [],
+  private static buildInstrumentation(
+    instrumentation: Provider<Instrumentation>[] = [],
   ): FactoryProvider {
     return {
       provide: Constants.SDK_INJECTORS,
-      useFactory: async (...injectors) => {
-        for await (const injector of injectors) {
-          if (injector['inject']) await injector.inject();
+      useFactory: async (...instrumentation) => {
+        for await (const instrument of instrumentation) {
+          await instrument.setupInstrumentation?.();
         }
       },
       inject: [
-        DecoratorInjector,
+        DecoratorInstrumentation,
         // eslint-disable-next-line @typescript-eslint/ban-types
-        ...(injectors as Function[]),
+        ...(instrumentation as Function[]),
       ],
     };
   }
@@ -59,7 +61,7 @@ export class OpenTelemetryModule {
       imports: [...configuration?.imports, EventEmitterModule.forRoot()],
       providers: [
         TraceService,
-        this.buildAsyncInjectors(),
+        this.buildAsyncInstrumentation(),
         this.buildTracer(),
         {
           provide: Constants.SDK_CONFIG,
@@ -71,19 +73,20 @@ export class OpenTelemetryModule {
     };
   }
 
-  private static buildAsyncInjectors(): FactoryProvider {
+  private static buildAsyncInstrumentation(): FactoryProvider {
     return {
       provide: Constants.SDK_INJECTORS,
-      useFactory: async (traceAutoInjectors, moduleRef: ModuleRef) => {
-        const injectors =
-          traceAutoInjectors ?? OpenTelemetryModuleDefaultConfig;
+      useFactory: async (instrumentation, moduleRef: ModuleRef) => {
+        instrumentation ??= defaultInstrumentation;
 
-        const decoratorInjector = await moduleRef.create(DecoratorInjector);
-        await decoratorInjector.inject();
+        const decoratorInstrumentation = await moduleRef.create(
+          DecoratorInstrumentation,
+        );
+        await decoratorInstrumentation.setupInstrumentation();
 
-        for await (const injector of injectors) {
-          const created = await moduleRef.create(injector);
-          if (created['inject']) await created.inject();
+        for await (const instrument of instrumentation) {
+          const created = await moduleRef.create(instrument);
+          await created.setupInstrumentation?.();
         }
 
         return {};

@@ -1,12 +1,13 @@
 import { Test } from '@nestjs/testing';
 import { OpenTelemetryModule } from '../../OpenTelemetryModule';
 import { NoopSpanProcessor } from '@opentelemetry/sdk-trace-node';
-import { Injectable } from '@nestjs/common';
+import { Controller, Get, Injectable } from '@nestjs/common';
+import { Span } from '../Decorators/Span';
+import * as request from 'supertest';
 import { Constants } from '../../Constants';
-import { Resolver, Query, Subscription, Mutation } from '@nestjs/graphql';
 import { Tracing } from '../../Tracing';
 
-describe('Tracing Decorator Injector Test', () => {
+describe('Tracing Decorator Instrumentation Test', () => {
   const sdkModule = OpenTelemetryModule.forRoot();
   let exporterSpy: jest.SpyInstance;
   const exporter = new NoopSpanProcessor();
@@ -21,15 +22,11 @@ describe('Tracing Decorator Injector Test', () => {
     exporterSpy.mockReset();
   });
 
-  it(`should trace graphql resolver provider Query method`, async () => {
+  it(`should trace decorated provider method`, async () => {
     // given
-    @Resolver(() => {
-      /***/
-    })
+    @Injectable()
     class HelloService {
-      @Query(() => [String], {
-        nullable: false,
-      })
+      @Span()
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       hi() {}
     }
@@ -51,8 +48,7 @@ describe('Tracing Decorator Injector Test', () => {
         attributes: {
           'nestjs.callback': 'hi',
           'nestjs.provider': 'HelloService',
-          'nestjs.resolver': 'query',
-          'nestjs.type': 'graphql_resolver',
+          'nestjs.type': 'custom',
         },
       }),
       expect.any(Object),
@@ -61,38 +57,34 @@ describe('Tracing Decorator Injector Test', () => {
     await app.close();
   });
 
-  it(`should trace graphql resolver provider Mutation method`, async () => {
+  it(`should trace decorated controller method`, async () => {
     // given
-    @Resolver(() => {
-      /***/
-    })
-    class HelloService {
-      @Mutation(() => [String], {
-        nullable: false,
-      })
+    @Controller('hello')
+    class HelloController {
+      @Span()
+      @Get()
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       hi() {}
     }
 
     const context = await Test.createTestingModule({
       imports: [sdkModule],
-      providers: [HelloService],
+      controllers: [HelloController],
     }).compile();
     const app = context.createNestApplication();
-    const helloService = app.get(HelloService);
+    await app.init();
 
     // when
-    helloService.hi();
+    await request(app.getHttpServer()).get('/hello').send().expect(200);
 
     //then
     expect(exporterSpy).toHaveBeenCalledWith(
       expect.objectContaining({
-        name: 'HelloService.hi',
+        name: 'HelloController.hi',
         attributes: {
           'nestjs.callback': 'hi',
-          'nestjs.provider': 'HelloService',
-          'nestjs.resolver': 'mutation',
-          'nestjs.type': 'graphql_resolver',
+          'nestjs.controller': 'HelloController',
+          'nestjs.type': 'controller_method',
         },
       }),
       expect.any(Object),
@@ -100,38 +92,36 @@ describe('Tracing Decorator Injector Test', () => {
 
     await app.close();
   });
-  it(`should trace graphql resolver provider Subscription method`, async () => {
+
+  it(`should trace decorated controller method with custom trace name`, async () => {
     // given
-    @Resolver(() => {
-      /***/
-    })
-    class HelloService {
-      @Subscription(() => [String], {
-        nullable: false,
-      })
+    @Controller('hello')
+    class HelloController {
+      @Span('MAVI_VATAN')
+      @Get()
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       hi() {}
     }
 
     const context = await Test.createTestingModule({
       imports: [sdkModule],
-      providers: [HelloService],
+      controllers: [HelloController],
     }).compile();
     const app = context.createNestApplication();
-    const helloService = app.get(HelloService);
+    await app.init();
 
     // when
-    helloService.hi();
+    await request(app.getHttpServer()).get('/hello').send().expect(200);
 
     //then
     expect(exporterSpy).toHaveBeenCalledWith(
       expect.objectContaining({
-        name: 'HelloService.hi',
+        name: 'HelloController.MAVI_VATAN',
         attributes: {
           'nestjs.callback': 'hi',
-          'nestjs.provider': 'HelloService',
-          'nestjs.resolver': 'subscription',
-          'nestjs.type': 'graphql_resolver',
+          'nestjs.controller': 'HelloController',
+          'nestjs.name': 'MAVI_VATAN',
+          'nestjs.type': 'controller_method',
         },
       }),
       expect.any(Object),
@@ -143,11 +133,8 @@ describe('Tracing Decorator Injector Test', () => {
   it(`should not trace already tracing prototype`, async () => {
     // given
     @Injectable()
-    @Resolver()
     class HelloService {
-      @Query(() => [String], {
-        nullable: false,
-      })
+      @Span()
       // eslint-disable-next-line @typescript-eslint/no-empty-function
       hi() {}
     }

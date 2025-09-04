@@ -14,11 +14,13 @@ import * as request from 'supertest';
 import { APP_INTERCEPTOR } from '@nestjs/core';
 import { Span } from '../Decorators/Span';
 import { Tracing } from '../../Tracing';
-import { InterceptorInjector } from './InterceptorInjector';
+import { InterceptorInstrumentation } from './InterceptorInstrumentation';
 import { Observable, switchMap, timer } from 'rxjs';
 
-describe('Tracing Interceptor Injector Test', () => {
-  const sdkModule = OpenTelemetryModule.forRoot([InterceptorInjector]);
+describe('Tracing Interceptor Instrumentation Test', () => {
+  const sdkModule = OpenTelemetryModule.forRoot({
+    instrumentation: [InterceptorInstrumentation],
+  });
   let exporterSpy: jest.SpyInstance;
   const exporter = new NoopSpanProcessor();
   Tracing.init({ serviceName: 'a', spanProcessor: exporter });

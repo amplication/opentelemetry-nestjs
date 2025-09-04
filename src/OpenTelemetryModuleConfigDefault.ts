@@ -1,20 +1,21 @@
-import { ControllerInjector } from './Trace/Injectors/ControllerInjector';
-import { GuardInjector } from './Trace/Injectors/GuardInjector';
-import { EventEmitterInjector } from './Trace/Injectors/EventEmitterInjector';
-import { ScheduleInjector } from './Trace/Injectors/ScheduleInjector';
-import { PipeInjector } from './Trace/Injectors/PipeInjector';
-import { ConsoleLoggerInjector } from './Trace/Injectors/ConsoleLoggerInjector';
-import { OpenTelemetryModuleConfig } from './OpenTelemetryModuleConfig.interface';
-import { GraphQLResolverInjector } from './Trace/Injectors/GraphQLResolverInjector';
-import { InterceptorInjector } from './Trace/Injectors/InterceptorInjector';
+import { ControllerInstrumentation } from './Trace/Instrumentation/ControllerInstrumentation';
+import { GuardInstrumentation } from './Trace/Instrumentation/GuardInstrumentation';
+import { EventEmitterInstrumentation } from './Trace/Instrumentation/EventEmitterInstrumentation';
+import { ScheduleInstrumentation } from './Trace/Instrumentation/ScheduleInstrumentation';
+import { PipeInstrumentation } from './Trace/Instrumentation/PipeInstrumentation';
+import { ConsoleLoggerInstrumentation } from './Trace/Instrumentation/ConsoleLoggerInstrumentation';
+import { GraphQLResolverInstrumentation } from './Trace/Instrumentation/GraphQLResolverInstrumentation';
+import { InterceptorInstrumentation } from './Trace/Instrumentation/InterceptorInstrumentation';
+import { Instrumentation } from './Trace/Instrumentation/Instrumentation.js';
+import { Provider } from '@nestjs/common/interfaces/modules/provider.interface';
 
-export const OpenTelemetryModuleDefaultConfig = <OpenTelemetryModuleConfig>[
-  ControllerInjector,
-  GraphQLResolverInjector,
-  GuardInjector,
-  InterceptorInjector,
-  EventEmitterInjector,
-  ScheduleInjector,
-  PipeInjector,
-  ConsoleLoggerInjector,
-];
+export const defaultInstrumentation = [
+  ControllerInstrumentation,
+  GraphQLResolverInstrumentation,
+  GuardInstrumentation,
+  InterceptorInstrumentation,
+  EventEmitterInstrumentation,
+  ScheduleInstrumentation,
+  PipeInstrumentation,
+  ConsoleLoggerInstrumentation,
+] as const satisfies Provider<Instrumentation>[];

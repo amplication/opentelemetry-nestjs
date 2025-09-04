@@ -5,13 +5,15 @@ import { NoopSpanProcessor } from '@opentelemetry/sdk-trace-node';
 import { Controller, ForbiddenException, Get } from '@nestjs/common';
 import { Span } from '../Decorators/Span';
 import * as request from 'supertest';
-import { ControllerInjector } from './ControllerInjector';
+import { ControllerInstrumentation } from './ControllerInstrumentation';
 import waitForExpect from 'wait-for-expect';
 import { EventPattern, MessagePattern } from '@nestjs/microservices';
 import { SpanKind, SpanStatusCode } from '@opentelemetry/api';
 
-describe('Tracing Controller Injector Test', () => {
-  const sdkModule = OpenTelemetryModule.forRoot([ControllerInjector]);
+describe('Tracing Controller Instrumentation Test', () => {
+  const sdkModule = OpenTelemetryModule.forRoot({
+    instrumentation: [ControllerInstrumentation],
+  });
   let exporterSpy: jest.SpyInstance;
   const exporter = new NoopSpanProcessor();
   Tracing.init({ serviceName: 'a', spanProcessor: exporter });
@@ -62,7 +64,7 @@ describe('Tracing Controller Injector Test', () => {
       );
 
       await app.close();
-    });
+    }, 10000);
 
     it(`should trace controller method using EventPattern`, async () => {
       // given

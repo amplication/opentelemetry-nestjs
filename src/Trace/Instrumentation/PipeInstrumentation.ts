@@ -1,19 +1,22 @@
 import { Injectable, Logger, PipeTransform } from '@nestjs/common';
-import { Injector } from './Injector';
+import { Instrumentation } from './Instrumentation';
 import { APP_PIPE, ModulesContainer } from '@nestjs/core';
-import { BaseTraceInjector } from './BaseTraceInjector';
+import { BaseTraceInstrumentation } from './BaseTraceInstrumentation';
 import { PIPES_METADATA } from '@nestjs/common/constants';
 import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 
 @Injectable()
-export class PipeInjector extends BaseTraceInjector implements Injector {
+export class PipeInstrumentation
+  extends BaseTraceInstrumentation
+  implements Instrumentation
+{
   private readonly loggerService = new Logger();
 
   constructor(protected readonly modulesContainer: ModulesContainer) {
     super(modulesContainer);
   }
 
-  public inject() {
+  public setupInstrumentation() {
     const controllers = this.getControllers();
 
     for (const controller of controllers) {
@@ -43,10 +46,10 @@ export class PipeInjector extends BaseTraceInjector implements Injector {
       }
     }
 
-    this.injectGlobals();
+    this.patchGlobals();
   }
 
-  private injectGlobals() {
+  private patchGlobals() {
     const providers = this.getProviders();
 
     for (const provider of providers) {

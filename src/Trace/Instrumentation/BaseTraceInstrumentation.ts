@@ -8,7 +8,7 @@ import { TraceWrapper } from '../TraceWrapper';
 import { SpanKind } from '@opentelemetry/api';
 import { MetadataScanner } from '../../MetaScanner';
 
-export class BaseTraceInjector {
+export class BaseTraceInstrumentation {
   protected readonly metadataScanner: MetadataScanner = new MetadataScanner();
 
   constructor(protected readonly modulesContainer: ModulesContainer) {}

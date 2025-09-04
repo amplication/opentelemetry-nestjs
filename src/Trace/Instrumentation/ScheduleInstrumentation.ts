@@ -1,10 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Injector } from './Injector';
+import { Instrumentation } from './Instrumentation';
 import { ModulesContainer } from '@nestjs/core';
-import { BaseTraceInjector } from './BaseTraceInjector';
+import { BaseTraceInstrumentation } from './BaseTraceInstrumentation';
 
 @Injectable()
-export class ScheduleInjector extends BaseTraceInjector implements Injector {
+export class ScheduleInstrumentation
+  extends BaseTraceInstrumentation
+  implements Instrumentation
+{
   private static SCHEDULE_CRON_OPTIONS = 'SCHEDULE_CRON_OPTIONS';
   private static SCHEDULE_INTERVAL_OPTIONS = 'SCHEDULE_INTERVAL_OPTIONS';
   private static SCHEDULE_TIMEOUT_OPTIONS = 'SCHEDULE_TIMEOUT_OPTIONS';
@@ -16,7 +19,7 @@ export class ScheduleInjector extends BaseTraceInjector implements Injector {
     super(modulesContainer);
   }
 
-  public inject() {
+  public setupInstrumentation() {
     const providers = this.getProviders();
 
     for (const provider of providers) {
@@ -64,21 +67,21 @@ export class ScheduleInjector extends BaseTraceInjector implements Injector {
 
   private isCron(prototype): boolean {
     return Reflect.hasMetadata(
-      ScheduleInjector.SCHEDULE_CRON_OPTIONS,
+      ScheduleInstrumentation.SCHEDULE_CRON_OPTIONS,
       prototype,
     );
   }
 
   private isTimeout(prototype): boolean {
     return Reflect.hasMetadata(
-      ScheduleInjector.SCHEDULE_TIMEOUT_OPTIONS,
+      ScheduleInstrumentation.SCHEDULE_TIMEOUT_OPTIONS,
       prototype,
     );
   }
 
   private isInterval(prototype): boolean {
     return Reflect.hasMetadata(
-      ScheduleInjector.SCHEDULE_INTERVAL_OPTIONS,
+      ScheduleInstrumentation.SCHEDULE_INTERVAL_OPTIONS,
       prototype,
     );
   }
@@ -86,7 +89,7 @@ export class ScheduleInjector extends BaseTraceInjector implements Injector {
   private getName(prototype): string {
     if (this.isCron(prototype)) {
       const options = Reflect.getMetadata(
-        ScheduleInjector.SCHEDULE_CRON_OPTIONS,
+        ScheduleInstrumentation.SCHEDULE_CRON_OPTIONS,
         prototype,
       );
       return options?.name ?? prototype.name;
@@ -94,7 +97,7 @@ export class ScheduleInjector extends BaseTraceInjector implements Injector {
 
     if (this.isTimeout(prototype) || this.isInterval(prototype)) {
       const name = Reflect.getMetadata(
-        ScheduleInjector.SCHEDULER_NAME,
+        ScheduleInstrumentation.SCHEDULER_NAME,
         prototype,
       );
       return name ?? prototype.name;
@@ -104,7 +107,7 @@ export class ScheduleInjector extends BaseTraceInjector implements Injector {
   private hasName(prototype): boolean {
     if (this.isCron(prototype)) {
       const options = Reflect.getMetadata(
-        ScheduleInjector.SCHEDULE_CRON_OPTIONS,
+        ScheduleInstrumentation.SCHEDULE_CRON_OPTIONS,
         prototype,
       );
       return !!options?.name;
@@ -112,7 +115,7 @@ export class ScheduleInjector extends BaseTraceInjector implements Injector {
 
     if (this.isTimeout(prototype) || this.isInterval(prototype)) {
       const name = Reflect.getMetadata(
-        ScheduleInjector.SCHEDULER_NAME,
+        ScheduleInstrumentation.SCHEDULER_NAME,
         prototype,
       );
       return !!name;

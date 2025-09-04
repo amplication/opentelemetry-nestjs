@@ -1,10 +1,10 @@
 import { ConsoleLogger, Injectable } from '@nestjs/common';
-import { Injector } from './Injector';
+import { Instrumentation } from './Instrumentation';
 import { context, trace } from '@opentelemetry/api';
 
 @Injectable()
-export class ConsoleLoggerInjector implements Injector {
-  public inject() {
+export class ConsoleLoggerInstrumentation implements Instrumentation {
+  public setupInstrumentation() {
     ConsoleLogger.prototype.log = this.wrapPrototype(
       ConsoleLogger.prototype.log,
     );
@@ -25,7 +25,7 @@ export class ConsoleLoggerInjector implements Injector {
   private wrapPrototype(prototype) {
     return {
       [prototype.name]: function (...args: any[]) {
-        args[0] = ConsoleLoggerInjector.getMessage(args[0]);
+        args[0] = ConsoleLoggerInstrumentation.getMessage(args[0]);
         prototype.apply(this, args);
       },
     }[prototype.name];

@@ -43,7 +43,7 @@ npm install @helveg/opentelemetry-nestjs --save
 
 ## Configuration
 
-This is a basic configuration without any trace and metric exporter, but includes default metrics and injectors
+This is a basic configuration without any trace and metric exporter, but includes default metrics and instrumentation
 
 ```ts
 import { OpenTelemetryModule } from '@helveg/opentelemetry-nestjs';
@@ -95,9 +95,9 @@ export class AppModule {}
       </tr>
       <tr>
          <td>
-            traceAutoInjectors
+            traceAutoInstrumentations
          </td>
-         <td>ControllerInjector, GuardInjector, EventEmitterInjector, ScheduleInjector, PipeInjector, LoggerInjector</td>
+         <td>ControllerInstrumentation, GuardInstrumentation, EventEmitterInstrumentation, ScheduleInstrumentation, PipeInstrumentation, LoggerInstrumentation</td>
          <td>default auto trace instrumentations inherited from <a href="https://github.com/open-telemetry/opentelemetry-js/blob/745bd5c34d3961dc73873190adc763747e5e026d/experimental/packages/opentelemetry-sdk-node/src/types.ts#:~:text=NodeSDKConfiguration">NodeSDKConfiguration</a> </td>
       </tr>
       <tr>
@@ -267,51 +267,51 @@ export class AppService {
 
 ### Auto Trace Instrumentations
 
-The most helpful part of this library is that you already get all of the instrumentations by default if you set up a module without any extra configuration. If you need to avoid some of them, you can use the `traceAutoInjectors` parameter.
+The most helpful part of this library is that you already get all of the instrumentations by default if you set up a module without any extra configuration. If you need to avoid some of them, you can use the `traceAutoInstrumentations` parameter.
 
 ```ts
 import { Module } from '@nestjs/common';
 import {
   OpenTelemetryModule,
-  ControllerInjector,
-  EventEmitterInjector,
-  GuardInjector,
-  LoggerInjector,
-  PipeInjector,
-  ScheduleInjector,
+  ControllerInstrumentation,
+  EventEmitterInstrumentation,
+  GuardInstrumentation,
+  LoggerInstrumentation,
+  PipeInstrumentation,
+  ScheduleInstrumentation,
 } from '@helveg/opentelemetry-nestjs';
 
 @Module({
   imports: [
     OpenTelemetryModule.forRoot([
-      ControllerInjector,
-      GuardInjector,
-      EventEmitterInjector,
-      ScheduleInjector,
-      PipeInjector,
-      LoggerInjector,
+      ControllerInstrumentation,
+      GuardInstrumentation,
+      EventEmitterInstrumentation,
+      ScheduleInstrumentation,
+      PipeInstrumentation,
+      LoggerInstrumentation,
     ]),
   ],
 })
 export class AppModule {}
 ```
 
-#### List of Trace Injectors
+#### List of Instrumentation
 
 | Instance                | Description                                                                                                                                                                                                        |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `ControllerInjector`    | Auto trace all of module controllers                                                                                                                                                                               |
-| `GuardInjector`         | Auto trace all of module guards including global guards                                                                                                                                                            |
-| `PipeInjector`          | Auto trace all of module pipes including global pipes                                                                                                                                                              |
-| `EventEmitterInjector`  | Auto trace for [@nestjs/event-emitter](https://docs.nestjs.com/techniques/events) library, supports all features                                                                                                   |
-| `ScheduleInjector`      | Auto trace for [@nestjs/schedule](https://docs.nestjs.com/techniques/task-scheduling) library, supports all features                                                                                               |
-| `ConsoleLoggerInjector` | [ConsoleLogger](https://docs.nestjs.com/techniques/logger#extend-built-in-logger) and [Logger](https://docs.nestjs.com/techniques/logger#using-the-logger-for-application-logging) class tracer, logs with traceId |
+| `ControllerInstrumentation`    | Auto trace all of module controllers                                                                                                                                                                               |
+| `GuardInstrumentation`         | Auto trace all of module guards including global guards                                                                                                                                                            |
+| `PipeInstrumentation`          | Auto trace all of module pipes including global pipes                                                                                                                                                              |
+| `EventEmitterInstrumentation`  | Auto trace for [@nestjs/event-emitter](https://docs.nestjs.com/techniques/events) library, supports all features                                                                                                   |
+| `ScheduleInstrumentation`      | Auto trace for [@nestjs/schedule](https://docs.nestjs.com/techniques/task-scheduling) library, supports all features                                                                                               |
+| `ConsoleLoggerInstrumentation` | [ConsoleLogger](https://docs.nestjs.com/techniques/logger#extend-built-in-logger) and [Logger](https://docs.nestjs.com/techniques/logger#using-the-logger-for-application-logging) class tracer, logs with traceId |
 
 ---
 
 #### Distributed Logging with Trace ID
 
-When you set up your environment with the `LoggerInjector` class or default configuration, you can see trace id with every log.
+When you set up your environment with the `LoggerInstrumentation` class or default configuration, you can see trace id with every log.
 
 ![Example trace output](./docs/log.png)
 
@@ -486,14 +486,14 @@ import { NestFactory } from '@nestjs/core';
 ```ts
 // app.module.ts
 import { OpenTelemetryModule } from '@helveg/opentelemetry-nestjs';
-import { ControllerInjector } from '@helveg/opentelemetry-nestjs';
+import { ControllerInstrumentation } from '@helveg/opentelemetry-nestjs';
 
 @Module({
   imports: [
     OpenTelemetryModule.forRoot({
       serviceName: 'my-service',
       spanProcessor: new SimpleSpanProcessor(),
-      traceAutoInjectors: [ControllerInjector],
+      traceAutoInstrumentations: [ControllerInstrumentation],
     }),
   ],
 })
@@ -520,10 +520,10 @@ import { NestFactory } from '@nestjs/core';
 ```ts
 // app.module.ts
 import { OpenTelemetryModule } from '@helveg/opentelemetry-nestjs';
-import { ControllerInjector } from '@helveg/opentelemetry-nestjs';
+import { ControllerInstrumentation } from '@helveg/opentelemetry-nestjs';
 
 @Module({
-  imports: [OpenTelemetryModule.forRoot([ControllerInjector])],
+  imports: { instrumentation: [OpenTelemetryModule.forRoot([ControllerInstrumentation] })],
 })
 export class AppModule {}
 ```

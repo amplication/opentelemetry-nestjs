@@ -5,10 +5,12 @@ import { NoopSpanProcessor } from '@opentelemetry/sdk-trace-node';
 import { Controller, Get, Injectable } from '@nestjs/common';
 import { Span } from '../Decorators/Span';
 import * as request from 'supertest';
-import { ControllerInjector } from './ControllerInjector';
+import { ControllerInstrumentation } from './ControllerInstrumentation';
 
-describe('Base Trace Injector Test', () => {
-  const sdkModule = OpenTelemetryModule.forRoot([ControllerInjector]);
+describe('Base Trace Instrumentation Test', () => {
+  const sdkModule = OpenTelemetryModule.forRoot({
+    instrumentation: [ControllerInstrumentation],
+  });
   let exporterSpy: jest.SpyInstance;
 
   beforeEach(() => {

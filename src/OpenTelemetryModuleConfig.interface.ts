@@ -1,4 +1,6 @@
 import type { Provider } from '@nestjs/common/interfaces/modules/provider.interface';
-import type { Injector } from './Trace/Injectors/Injector';
+import type { Instrumentation } from './Trace/Instrumentation/Instrumentation';
 
-export type OpenTelemetryModuleConfig = Provider<Injector>[];
+export type OpenTelemetryModuleConfig = {
+  instrumentation?: Provider<Instrumentation>[];
+};

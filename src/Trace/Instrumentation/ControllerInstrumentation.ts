@@ -1,18 +1,21 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ModulesContainer } from '@nestjs/core';
-import { BaseTraceInjector } from './BaseTraceInjector';
-import { Injector } from './Injector';
+import { BaseTraceInstrumentation } from './BaseTraceInstrumentation';
+import { Instrumentation } from './Instrumentation';
 import { SpanKind } from '@opentelemetry/api';
 
 @Injectable()
-export class ControllerInjector extends BaseTraceInjector implements Injector {
+export class ControllerInstrumentation
+  extends BaseTraceInstrumentation
+  implements Instrumentation
+{
   private readonly loggerService = new Logger();
 
   constructor(protected readonly modulesContainer: ModulesContainer) {
     super(modulesContainer);
   }
 
-  public inject() {
+  public setupInstrumentation() {
     const controllers = this.getControllers();
 
     for (const controller of controllers) {

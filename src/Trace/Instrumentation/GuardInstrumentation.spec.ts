@@ -3,13 +3,15 @@ import { OpenTelemetryModule } from '../../OpenTelemetryModule';
 import { NoopSpanProcessor } from '@opentelemetry/sdk-trace-node';
 import { CanActivate, Controller, Get, UseGuards } from '@nestjs/common';
 import * as request from 'supertest';
-import { GuardInjector } from './GuardInjector';
+import { GuardInstrumentation } from './GuardInstrumentation';
 import { APP_GUARD } from '@nestjs/core';
 import { Span } from '../Decorators/Span';
 import { Tracing } from '../../Tracing';
 
-describe('Tracing Guard Injector Test', () => {
-  const sdkModule = OpenTelemetryModule.forRoot([GuardInjector]);
+describe('Tracing Guard Instrumentation Test', () => {
+  const sdkModule = OpenTelemetryModule.forRoot({
+    instrumentation: [GuardInstrumentation],
+  });
   let exporterSpy: jest.SpyInstance;
   const exporter = new NoopSpanProcessor();
   Tracing.init({ serviceName: 'a', spanProcessor: exporter });

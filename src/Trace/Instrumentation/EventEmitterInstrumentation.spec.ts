@@ -3,12 +3,14 @@ import { OpenTelemetryModule } from '../../OpenTelemetryModule';
 import { NoopSpanProcessor } from '@opentelemetry/sdk-trace-node';
 import { Injectable } from '@nestjs/common';
 import { Span } from '../Decorators/Span';
-import { EventEmitterInjector } from './EventEmitterInjector';
+import { EventEmitterInstrumentation } from './EventEmitterInstrumentation';
 import { OnEvent } from '@nestjs/event-emitter';
 import { Tracing } from '../../Tracing';
 
-describe('Tracing Event Emitter Injector Test', () => {
-  const sdkModule = OpenTelemetryModule.forRoot([EventEmitterInjector]);
+describe('Tracing Event Emitter Instrumentation Test', () => {
+  const sdkModule = OpenTelemetryModule.forRoot({
+    instrumentation: [EventEmitterInstrumentation],
+  });
   let exporterSpy: jest.SpyInstance;
   const exporter = new NoopSpanProcessor();
   Tracing.init({ serviceName: 'a', spanProcessor: exporter });
