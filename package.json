@@ -1,5 +1,5 @@
 {
-  "name": "@helveg/opentelemetry-nestjs",
+  "name": "@amplication/opentelemetry-nestjs",
   "version": "0.0.0-development",
   "description": "OpenTelemetry module for Nestjs with auto instrumentation and resource detection. Initially forked from https://github.com/overbit/opentelemetry-nestjs.git",
   "author": "Daniele Iasella <2861984+overbit@users.noreply.github.com>",
@@ -7,7 +7,7 @@
   "main": "dist/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/helveg/opentelemetry-nestjs.git"
+    "url": "https://github.com/amplication/opentelemetry-nestjs.git"
   },
   "release": {
     "branches": [
@@ -28,9 +28,9 @@
     "aws-xray"
   ],
   "bugs": {
-    "url": "https://github.com/helveg/opentelemetry-nestjs/issues"
+    "url": "https://github.com/amplication/opentelemetry-nestjs/issues"
   },
-  "homepage": "https://github.com/helveg/opentelemetry-nestjs#readme",
+  "homepage": "https://github.com/amplication/opentelemetry-nestjs#readme",
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",

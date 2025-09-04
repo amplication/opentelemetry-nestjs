@@ -1,7 +1,7 @@
 # NestJS OpenTelemetry
 
 <p align="center">
-<a href="https://www.npmjs.com/package/@helveg/opentelemetry-nestjs"><img src="https://img.shields.io/npm/v/@helveg/opentelemetry-nestjs.svg"/> <img src="https://img.shields.io/npm/dt/@helveg/opentelemetry-nestjs.svg"/></a>
+<a href="https://www.npmjs.com/package/@amplication/opentelemetry-nestjs"><img src="https://img.shields.io/npm/v/@amplication/opentelemetry-nestjs.svg"/> <img src="https://img.shields.io/npm/dt/@amplication/opentelemetry-nestjs.svg"/></a>
 <a href="https://github.com/overbit/opentelemetry-nestjs"><img src="https://img.shields.io/npm/l/@overbit/opentelemetry-nestjs.svg"/></a>
 <a href="https://github.com/overbit/opentelemetry-nestjs"><img src="https://img.shields.io/github/stars/overbit/opentelemetry-nestjs.svg"/></a>
 </p>
@@ -23,16 +23,16 @@ monitor and analyze your application with minimal configuration.
 ## Installation
 
 ```bash
-npm install @helveg/opentelemetry-nestjs --save
+npm install @amplication/opentelemetry-nestjs --save
 ```
 
 ## Setup
 
-Getting started with `@helveg/opentelemetry-nestjs` is simple. To enable automatic instrumentation for most NestJS
+Getting started with `@amplication/opentelemetry-nestjs` is simple. To enable automatic instrumentation for most NestJS
 components, just import the `OpenTelemetryModule` in your root module:
 
 ```ts
-import { OpenTelemetryModule } from '@helveg/opentelemetry-nestjs';
+import { OpenTelemetryModule } from '@amplication/opentelemetry-nestjs';
 
 @Module({
   imports: [
@@ -62,7 +62,7 @@ and capture fine-grained traces for important operations.
 
 ```ts
 import { Injectable } from '@nestjs/common';
-import { Span } from '@helveg/opentelemetry-nestjs';
+import { Span } from '@amplication/opentelemetry-nestjs';
 
 @Injectable()
 export class AppService {
@@ -85,7 +85,7 @@ method of the class:
 
 ```ts
 import { Injectable } from '@nestjs/common';
-import { Traceable } from '@helveg/opentelemetry-nestjs';
+import { Traceable } from '@amplication/opentelemetry-nestjs';
 
 @Traceable()
 @Injectable()
@@ -103,7 +103,7 @@ application context. In that case you can inject the `Tracer` provider:
 
 ```ts
 import { Injectable } from '@nestjs/common';
-import { Tracer } from '@helveg/opentelemetry-nestjs';
+import { Tracer } from '@amplication/opentelemetry-nestjs';
 
 @Injectable()
 export class AppService {
@@ -126,7 +126,7 @@ The `TraceService` provides direct access to the current span context and allows
 
 ```ts
 import { Injectable } from '@nestjs/common';
-import { TraceService } from '@helveg/opentelemetry-nestjs';
+import { TraceService } from '@amplication/opentelemetry-nestjs';
 
 @Injectable()
 export class AppService {
@@ -159,7 +159,7 @@ import {
   LoggerInstrumentation,
   PipeInstrumentation,
   ScheduleInstrumentation,
-} from '@helveg/opentelemetry-nestjs';
+} from '@amplication/opentelemetry-nestjs';
 
 @Module({
   imports: [
@@ -204,7 +204,7 @@ If you need to trace instances of classes that aren’t managed by the NestJS DI
 `TraceWrapper.trace()`. This automatically creates a new span for each method:
 
 ```ts
-import { TraceWrapper } from '@helveg/opentelemetry-nestjs';
+import { TraceWrapper } from '@amplication/opentelemetry-nestjs';
 
 class MyClass {
   hello() {
@@ -271,7 +271,7 @@ manager, propagators, and resource detectors. Accepts any `NodeSDKConfiguration`
 **Example:**
 
 ```ts
-import { startNestJsOpenTelemetrySDK } from '@helveg/opentelemetry-nestjs';
+import { startNestJsOpenTelemetrySDK } from '@amplication/opentelemetry-nestjs';
 import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
 
 const sdk = startNestJsOpenTelemetrySDK({
@@ -290,7 +290,7 @@ import {
   nestjsContextManager,
   nestjsTextMapPropagator,
   nestjsResourceDetectors,
-} from '@helveg/opentelemetry-nestjs';
+} from '@amplication/opentelemetry-nestjs';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 
 const sdk = new NodeSDK({
@@ -321,7 +321,7 @@ Returns a preconfigured set of Node auto-instrumentations with noise reduction:
 **Example:**
 
 ```ts
-import { nodeAutoInstrumentationReduceNoise } from '@helveg/opentelemetry-nestjs';
+import { nodeAutoInstrumentationReduceNoise } from '@amplication/opentelemetry-nestjs';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 
 const instrumentations = getNodeAutoInstrumentations(nodeAutoInstrumentationReduceNoise());
@@ -339,7 +339,7 @@ Filters out specific incoming HTTP requests from tracing, such as health checks 
 **Example:**
 
 ```ts
-import { nodeAutoInstrumentationHttpReduceIncoming } from '@helveg/opentelemetry-nestjs';
+import { nodeAutoInstrumentationHttpReduceIncoming } from '@amplication/opentelemetry-nestjs';
 
 const httpInstrumentations = nodeAutoInstrumentationHttpReduceIncoming({
   healthChecks: ['/health', '/status'],
@@ -356,7 +356,7 @@ Returns an `AsyncLocalStorageContextManager` for proper context propagation in a
 **Example:**
 
 ```ts
-import { nestjsContextManager } from '@helveg/opentelemetry-nestjs';
+import { nestjsContextManager } from '@amplication/opentelemetry-nestjs';
 
 const contextManager = nestjsContextManager();
 ```
@@ -374,7 +374,7 @@ Returns a composite propagator supporting:
 **Example:**
 
 ```ts
-import { nestjsTextMapPropagator } from '@helveg/opentelemetry-nestjs';
+import { nestjsTextMapPropagator } from '@amplication/opentelemetry-nestjs';
 
 const propagator = nestjsTextMapPropagator();
 ```
@@ -389,7 +389,7 @@ Returns an array of resource detectors to enrich spans with environment informat
 **Example:**
 
 ```ts
-import { nestjsResourceDetectors } from '@helveg/opentelemetry-nestjs';
+import { nestjsResourceDetectors } from '@amplication/opentelemetry-nestjs';
 
 const detectors = nestjsResourceDetectors();
 ```
@@ -404,7 +404,7 @@ the defaults.
 **Example:**
 
 ```ts
-import { mergeInstrumentationConfigMap, nodeAutoInstrumentationReduceNoise } from '@helveg/opentelemetry-nestjs';
+import { mergeInstrumentationConfigMap, nodeAutoInstrumentationReduceNoise } from '@amplication/opentelemetry-nestjs';
 
 const customConfig = {
   '@opentelemetry/instrumentation-http': {
@@ -422,7 +422,7 @@ const merged = mergeInstrumentationConfigMap(
 
 ```ts
 /* tracing.ts */
-import { startNestJsOpenTelemetrySDK } from '@helveg/opentelemetry-nestjs';
+import { startNestJsOpenTelemetrySDK } from '@amplication/opentelemetry-nestjs';
 import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
 import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc';
@@ -466,7 +466,7 @@ import 'tracing.ts';
 ```ts
 /* app.module.ts */
 import { Module } from '@nestjs/common';
-import { OpenTelemetryModule } from '@helveg/opentelemetry-nestjs';
+import { OpenTelemetryModule } from '@amplication/opentelemetry-nestjs';
 
 @Module({
   imports: [OpenTelemetryModule.forRoot()],
@@ -482,7 +482,7 @@ the [official instructions](https://docs.aws.amazon.com/AmazonCloudWatch/latest/
 
 ```ts
 /* tracing.ts */
-import { startNestJsOpenTelemetrySDK, defaultInstrumentation } from '@helveg/opentelemetry-nestjs';
+import { startNestJsOpenTelemetrySDK, defaultInstrumentation } from '@amplication/opentelemetry-nestjs';
 import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc';
 import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-node';
