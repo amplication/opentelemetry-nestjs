@@ -513,21 +513,30 @@ startNestJsOpenTelemetrySDK({
 });
 ```
 
-## Migrating to v6
+## Migrating from v5.x to v6.x
 
-In v6 the naming of the traces has been updated to be more in line with OpenTelemetry Semantic Conventions:
+Version 6.0 introduces significant breaking changes to improve type safety, align with OpenTelemetry standards, and enhance code organization.
 
-In v5 auto instrumentation would have trace names similar to `Pipe->Global->MyPipe`, now instead the name is `MyPipe`
-and more semantic attributes are added to qualify the span instead:
+**📖 [Complete Migration Guide →](docs/migration-5-to-6.md)**
 
+### Quick Summary of Changes
+
+1. **SDK Initialization**: `Tracing.init()` → `startNestJsOpenTelemetrySDK()`
+2. **Module Config**: Array format → Object format with `instrumentation` property
+3. **Naming**: All `*Injector` classes → `*Instrumentation`
+4. **Imports**: File paths updated to kebab-case
+5. **Trace Naming**: Updated to align with OpenTelemetry Semantic Conventions
+
+**Before (v5.x):**
+```typescript
+Tracing.init({ serviceName: 'my-app' });
+OpenTelemetryModule.forRoot([ControllerInjector]);
 ```
-nestjs.type: pipe
-nestjs.scope: global
+
+**After (v6.x):**
+```typescript
+startNestJsOpenTelemetrySDK({ serviceName: 'my-app' });
+OpenTelemetryModule.forRoot({ instrumentation: [ControllerInstrumentation] });
 ```
 
-In v6 the library was restructured and most files and classes were renamed to be more in line with the OpenTelemetry
-semantics, the TypeScript naming conventions, and to generally be clearer. You may have to update your imports. Most
-notably, all the `*Injector` classes have been renamed to `*Instrumentation`.
-
-Additionally, pattern for configuring the module has been restructured to match typical NestJS module configuration and
-now takes an object with `instrumentation` option.
+For detailed migration instructions, code examples, and a complete checklist, see the [Migration Guide](docs/migration-5-to-6.md).
