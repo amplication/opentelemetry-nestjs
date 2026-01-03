@@ -35,12 +35,9 @@ components, just import the `OpenTelemetryModule` in your root module:
 import { OpenTelemetryModule } from '@amplication/opentelemetry-nestjs';
 
 @Module({
-  imports: [
-    OpenTelemetryModule.forRoot(),
-  ],
+  imports: [OpenTelemetryModule.forRoot()],
 })
-export class AppModule {
-}
+export class AppModule {}
 ```
 
 This will automatically instrument controllers, providers, guards, interceptors, and other core NestJS layers, giving
@@ -107,8 +104,7 @@ import { Tracer } from '@amplication/opentelemetry-nestjs';
 
 @Injectable()
 export class AppService {
-  constructor(private readonly tracer: Tracer) {
-  }
+  constructor(private readonly tracer: Tracer) {}
 
   getHello(): string {
     const span = this.tracer.startSpan('important_section_start');
@@ -130,8 +126,7 @@ import { TraceService } from '@amplication/opentelemetry-nestjs';
 
 @Injectable()
 export class AppService {
-  constructor(private readonly traceService: TraceService) {
-  }
+  constructor(private readonly traceService: TraceService) {}
 
   getHello(): string {
     const span = this.traceService.startSpan('hello');
@@ -175,14 +170,13 @@ import {
     }),
   ],
 })
-export class AppModule {
-}
+export class AppModule {}
 ```
 
 ### Instrumented components
 
 | Instance                       | Description                                                                                                                                                                                                        |
-|--------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `ControllerInstrumentation`    | Auto trace all of module controllers                                                                                                                                                                               |
 | `GuardInstrumentation`         | Auto trace all of module guards including global guards                                                                                                                                                            |
 | `PipeInstrumentation`          | Auto trace all of module pipes including global pipes                                                                                                                                                              |
@@ -312,11 +306,11 @@ sdk.start();
 
 Returns a preconfigured set of Node auto-instrumentations with noise reduction:
 
-* `fs` instrumentation ignores files in `node_modules` and tags spans with file paths.
-* `http` instrumentation updates incoming request spans to `"HTTP_METHOD PATH"`.
-* `graphql` instrumentation is configured for NestJS (`mergeItems: true`, `ignoreResolveSpans: true`,
+- `fs` instrumentation ignores files in `node_modules` and tags spans with file paths.
+- `http` instrumentation updates incoming request spans to `"HTTP_METHOD PATH"`.
+- `graphql` instrumentation is configured for NestJS (`mergeItems: true`, `ignoreResolveSpans: true`,
   `ignoreTrivialResolveSpans: true`).
-* `net`, `dns`, `express`, and `nestjs-core` instrumentations are disabled to reduce noise.
+- `net`, `dns`, `express`, and `nestjs-core` instrumentations are disabled to reduce noise.
 
 **Example:**
 
@@ -324,7 +318,9 @@ Returns a preconfigured set of Node auto-instrumentations with noise reduction:
 import { nodeAutoInstrumentationReduceNoise } from '@amplication/opentelemetry-nestjs';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 
-const instrumentations = getNodeAutoInstrumentations(nodeAutoInstrumentationReduceNoise());
+const instrumentations = getNodeAutoInstrumentations(
+  nodeAutoInstrumentationReduceNoise(),
+);
 ```
 
 ### `nodeAutoInstrumentationHttpReduceIncoming(options?)`
@@ -333,8 +329,8 @@ Filters out specific incoming HTTP requests from tracing, such as health checks 
 
 **Options:**
 
-* `healthChecks`: array of URL paths to ignore (`['/health', '/_health', '/healthz', 'healthcheck']` by default)
-* `methods`: array of HTTP methods to ignore (`['OPTIONS']` by default)
+- `healthChecks`: array of URL paths to ignore (`['/health', '/_health', '/healthz', 'healthcheck']` by default)
+- `methods`: array of HTTP methods to ignore (`['OPTIONS']` by default)
 
 **Example:**
 
@@ -367,9 +363,9 @@ const contextManager = nestjsContextManager();
 
 Returns a composite propagator supporting:
 
-* Jaeger
-* W3C Trace Context
-* B3 single-header and multi-header
+- Jaeger
+- W3C Trace Context
+- B3 single-header and multi-header
 
 **Example:**
 
@@ -404,11 +400,14 @@ the defaults.
 **Example:**
 
 ```ts
-import { mergeInstrumentationConfigMap, nodeAutoInstrumentationReduceNoise } from '@amplication/opentelemetry-nestjs';
+import {
+  mergeInstrumentationConfigMap,
+  nodeAutoInstrumentationReduceNoise,
+} from '@amplication/opentelemetry-nestjs';
 
 const customConfig = {
   '@opentelemetry/instrumentation-http': {
-    ignoreIncomingRequestHook: req => req.url === '/metrics',
+    ignoreIncomingRequestHook: (req) => req.url === '/metrics',
   },
 };
 
@@ -437,11 +436,13 @@ startNestJsOpenTelemetrySDK({
     endpoint: 'metrics',
     port: 9464,
   }),
-  spanProcessors: [new BatchSpanProcessor(
-    new OTLPTraceExporter({
-      url: 'your-jaeger-url',
-    }),
-  )],
+  spanProcessors: [
+    new BatchSpanProcessor(
+      new OTLPTraceExporter({
+        url: 'your-jaeger-url',
+      }),
+    ),
+  ],
   textMapPropagator: new CompositePropagator({
     propagators: [
       new JaegerPropagator(),
@@ -471,8 +472,7 @@ import { OpenTelemetryModule } from '@amplication/opentelemetry-nestjs';
 @Module({
   imports: [OpenTelemetryModule.forRoot()],
 })
-export class AppModule {
-}
+export class AppModule {}
 ```
 
 ### AWS X-Ray/CloudWatch
@@ -482,7 +482,10 @@ the [official instructions](https://docs.aws.amazon.com/AmazonCloudWatch/latest/
 
 ```ts
 /* tracing.ts */
-import { startNestJsOpenTelemetrySDK, defaultInstrumentation } from '@amplication/opentelemetry-nestjs';
+import {
+  startNestJsOpenTelemetrySDK,
+  defaultInstrumentation,
+} from '@amplication/opentelemetry-nestjs';
 import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-grpc';
 import { SimpleSpanProcessor } from '@opentelemetry/sdk-trace-node';

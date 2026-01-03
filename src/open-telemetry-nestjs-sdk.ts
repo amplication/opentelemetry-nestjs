@@ -56,7 +56,7 @@ export function nodeAutoInstrumentationReduceNoise(): InstrumentationConfigMap {
 
 export function nodeAutoInstrumentationHttpReduceIncoming(
   options: { healthChecks?: string[] | false; methods?: string[] | false } = {
-    healthChecks: ['/health', '/_health', '/healthz', 'healthcheck'],
+    healthChecks: ['/health', '/_health', '/healthz', '/healthcheck'],
     methods: ['OPTIONS'],
   },
 ): InstrumentationConfigMap {
