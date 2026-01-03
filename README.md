@@ -26,17 +26,32 @@ It also includes auto trace and metric instrumentations for some popular Nestjs 
 
 OpenTelemetry Metrics currently experimental. So, this library doesn't support metric decorators and Auto Observers until it's stable. but if you want to use it, you can use OpenTelemetry API directly.
 
-Competability table for Nestjs versions.
+Compatibility table for Nestjs versions.
 
-| Nestjs | Nestjs-OpenTelemetry |
-| ------ | -------------------- |
-| 9.x    | 3.x.x                |
-| 8.x    | 2.x.x                |
+| Nestjs | Nestjs-OpenTelemetry | Node.js | OpenTelemetry |
+| ------ | -------------------- | ------- | ------------- |
+| 11.x   | 6.x.x                | >=20    | 0.55.x / 1.30.x |
+| 10.x   | 5.x.x                | >=18    | 0.48.x / 1.21.x |
+| 9.x    | 3.x.x                | >=16    | 0.41.x / 1.x.x  |
+| 8.x    | 2.x.x                | >=14    | 0.x.x          |
+
+## Requirements
+
+- **Node.js**: >= 20.0.0
+- **TypeScript**: >= 5.0.4
+- **NestJS**: >= 8.0.0 (see compatibility table above)
+- **OpenTelemetry**: See compatibility table above for version requirements
 
 ## Installation
 
 ```bash
 npm install @amplication/opentelemetry-nestjs --save
+```
+
+You'll also need to install the required peer dependencies for your NestJS version and desired OpenTelemetry exporters. For example:
+
+```bash
+npm install @nestjs/core @nestjs/common @opentelemetry/sdk-node @opentelemetry/auto-instrumentations-node
 ```
 
 ---

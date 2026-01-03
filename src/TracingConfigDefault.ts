@@ -29,6 +29,7 @@ export const NodeAutoInstrumentationsDefaultConfig = <InstrumentationConfigMap>{
   },
   '@opentelemetry/instrumentation-http': {
     requireParentforOutgoingSpans: true,
+    requireParentforIncomingSpans: false,
     requestHook: (span: Span, request: IncomingMessage) => {
       span.updateName(`${request.method} ${request.url}`);
     },
