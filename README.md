@@ -528,12 +528,14 @@ Version 6.0 introduces significant breaking changes to improve type safety, alig
 5. **Trace Naming**: Updated to align with OpenTelemetry Semantic Conventions
 
 **Before (v5.x):**
+
 ```typescript
 Tracing.init({ serviceName: 'my-app' });
 OpenTelemetryModule.forRoot([ControllerInjector]);
 ```
 
 **After (v6.x):**
+
 ```typescript
 startNestJsOpenTelemetrySDK({ serviceName: 'my-app' });
 OpenTelemetryModule.forRoot({ instrumentation: [ControllerInstrumentation] });
