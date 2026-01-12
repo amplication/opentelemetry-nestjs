@@ -106,6 +106,8 @@ export class UsersController {
 | --- | --- | --- |
 | Simple shared config | `src/constants.ts` | Centralizes metadata keys and span naming helpers used by decorators and instrumentation. |
 | Complex instrumentation | `src/trace/instrumentation/controller.instrumentation.ts` | Demonstrates extending `BaseTraceInstrumentation`, scanning controllers, and delegating to `TraceWrapper`. |
+| Testing pattern | `src/trace/instrumentation/controller.instrumentation.spec.ts` | Provides the Jest-based spec that exercises instrumentation wiring, mocks Nest dependencies, and enforces coverage. |
+| Decorator implementation | `src/trace/decorators/span.ts` | Shows how the `@Span` decorator manages metadata and span naming for individual methods. |
 | Documentation pattern | `docs/migration-5-to-6.md` | Shows the preferred style for step-by-step guides, including before/after snippets and checklists. |
 | Workflow reference | `.github/workflows/ci.yml` | Canonical CI pipeline outlining lint/test/build order and Node setup used across workflows. |
 
