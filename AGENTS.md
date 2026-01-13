@@ -11,10 +11,13 @@
 ├── src/
 │   ├── open-telemetry.module.ts        # Module bootstrap + default instrumentation wiring
 │   ├── open-telemetry-nestjs-sdk.ts    # NodeSDK helpers (context manager, propagators, auto instrumentation)
+│   ├── index.ts                        # Export hub (barrel) exposing module pieces to consumers
 │   ├── meta-scanner*.ts                # Metadata utilities (+ colocated spec)
 │   └── trace/
 │       ├── decorators/                 # `span.ts`, `traceable.ts`
 │       ├── instrumentation/            # Controller/Guard/etc. instrumentation + tests
+│       ├── logger.interface.ts         # Contracts for pluggable trace logger implementations
+│       ├── noop.trace-exporter.ts      # No-op exporter helper for logging/testing scenarios
 │       ├── trace-wrapper*.ts           # Helpers and tests for manual wrapping
 │       └── trace.service.ts            # Service exposed through module exports
 ├── docs/
@@ -94,6 +97,7 @@ npm run build
 ## Reference Examples
 - `src/trace/decorators/span.ts` – Minimal decorator implementation showcasing metadata keys from `src/constants.ts`.
 - `src/trace/instrumentation/controller.instrumentation.ts` – Full instrumentation pipeline (metadata scanning, wrapping) with `controller.instrumentation.spec.ts` validating behavior.
+- `src/trace/instrumentation/guard.instrumentation.spec.ts` (paired with `guard.instrumentation.ts`) – Canonical Jest template for instrumentation tests; copy this when adding new providers.
 - `src/trace/trace-wrapper.ts` + `.spec.ts` – Manual span creation for non-injectable objects.
 - `src/open-telemetry-nestjs-sdk.ts` – NodeSDK bootstrap, auto-instrumentation config (`nodeAutoInstrumentationReduceNoise`, `nestjsTextMapPropagator`, etc.).
 - `docs/migration-5-to-6.md` – Long-form documentation template with before/after comparisons and checklist.
