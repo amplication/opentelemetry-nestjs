@@ -96,12 +96,15 @@ npm run build
 
 ## Reference Examples
 - `src/trace/decorators/span.ts` – Minimal decorator implementation showcasing metadata keys from `src/constants.ts`.
+- `src/meta-scanner.ts` + `.spec.ts` – Utility for enumerating Nest providers and their metadata; refer to this when adding new reflection-driven instrumentation.
+- `src/open-telemetry.module.ts` – Central module wiring that registers the default instrumentation array and exposes the tracing services.
 - `src/trace/instrumentation/controller.instrumentation.ts` – Full instrumentation pipeline (metadata scanning, wrapping) with `controller.instrumentation.spec.ts` validating behavior.
 - `src/trace/instrumentation/guard.instrumentation.spec.ts` (paired with `guard.instrumentation.ts`) – Canonical Jest template for instrumentation tests; copy this when adding new providers.
 - `src/trace/trace-wrapper.ts` + `.spec.ts` – Manual span creation for non-injectable objects.
 - `src/open-telemetry-nestjs-sdk.ts` – NodeSDK bootstrap, auto-instrumentation config (`nodeAutoInstrumentationReduceNoise`, `nestjsTextMapPropagator`, etc.).
 - `docs/migration-5-to-6.md` – Long-form documentation template with before/after comparisons and checklist.
 - `.github/workflows/ci.yml` – Source of required validation steps for every contribution.
+- `.github/workflows/release.yml` & `.github/workflows/releaseBeta.yml` – Release automation pipelines (semantic-release on `main`, manual beta publishing).
 
 ## Critical Rules & Tips
 - Always keep coverage thresholds satisfied; if you touch instrumentation logic, expand the companion `*.spec.ts` rather than lowering thresholds.
