@@ -22,8 +22,12 @@
 │       └── trace.service.ts            # Service exposed through module exports
 ├── docs/
 │   ├── migration-5-to-6.md             # Example of structured guide w/ before/after blocks
-│   ├── log.png & trace-flow.jpeg       # Assets referenced by README
-├── .github/workflows/                  # `ci.yml`, `release.yml`, `releaseBeta.yml`
+│   ├── log.png                         # Asset referenced by README (trace log screenshot)
+│   └── trace-flow.jpeg                 # Asset referenced by README (trace flow diagram)
+├── .github/workflows/
+│   ├── ci.yml                          # Validation pipeline
+│   ├── release.yml                     # Semantic-release pipeline
+│   └── releaseBeta.yml                 # Manual beta publishing workflow
 ├── README.md                           # Primary user documentation
 ├── package.json / package-lock.json    # Scripts, toolchain, dependency definitions
 ├── tsconfig.json & tsconfig.build.json # Compiler + build pipeline configs
@@ -58,14 +62,14 @@
 - **Decorators:** `src/trace/decorators/span.ts` and `traceable.ts` attach metadata consumed by `DecoratorInstrumentation` to wrap provider methods. Class-level `@Traceable()` instruments every method; method-level `@Span()` accepts optional span names.
 - **Manual spans:** `TraceService` and `TraceWrapper` provide escape hatches when DI hooks are unavailable. `trace-wrapper.spec.ts` demonstrates wrapping non-injectable classes with automatic span creation.
 - **Colocated tests:** Every helper/instrumentation class retains a nearby `.spec.ts` (e.g., `meta-scanner.spec.ts`, `event-emitter.instrumentation.spec.ts`), and Jest is configured to look only inside `src/` (see `jest.config.js`).
-- **Coverage requirements:** Global thresholds enforce ≥80% branches and ≥90% lines; maintain or update specs when touching instrumentation logic.
+- **Coverage requirements:** Global thresholds (≥80% branches / ≥90% lines, per `jest.config.js`) must be satisfied—update companion specs whenever instrumentation logic changes.
 
 ## Quality & CI/CD Standards
 - **Linting & Formatting:** `.eslintrc.js` extends `@typescript-eslint`’s recommended preset plus `plugin:prettier/recommended`; `.prettierrc` enforces single quotes and trailing commas. Always run `npm run lint` + `npm run format` before submitting changes.
-- **Continuous Integration (`.github/workflows/ci.yml`):** On PRs/pushes (excluding `main`), CI runs `npm ci`, `npm run lint`, `npm run test:cov`, and `npm run build`. Broken coverage, lint errors, or build failures block merges.
+- **Continuous Integration (`.github/workflows/ci.yml`):** On PRs/pushes (excluding `main`), CI enforces the full validation chain—`npm ci`, `npm run lint`, `npm run test:cov`, and `npm run build` (Nest CLI)—and blocks merges on any failure.
 - **Releases:**
-  - `release.yml` (push to `main`) reruns lint/test/build and executes `npx semantic-release` with OIDC-enabled npm publishing.
-  - `releaseBeta.yml` is a manual workflow_dispatch that bumps a provided semver (no git tag) and publishes with `npm publish --tag beta`.
+  - `release.yml` (push to `main`) reruns the same validation steps before invoking `npx semantic-release` with npm provenance via OIDC.
+  - `releaseBeta.yml` is a manual `workflow_dispatch` requiring the desired semver input, runs `npm ci`, locally sets that version, and publishes with `npm publish --tag beta`.
 - **Versioning:** Managed exclusively by semantic-release; do not hand-edit `version` except inside the manual beta workflow.
 
 ## Documentation Guidance
@@ -79,7 +83,7 @@
 npm ci
 npm run lint
 npm run test:cov
-npm run build
+npm run build # Nest CLI build
 ```
 
 ### Adding or updating instrumentation
@@ -96,15 +100,16 @@ npm run build
 
 ## Reference Examples
 - `src/trace/decorators/span.ts` – Minimal decorator implementation showcasing metadata keys from `src/constants.ts`.
-- `src/meta-scanner.ts` + `.spec.ts` – Utility for enumerating Nest providers and their metadata; refer to this when adding new reflection-driven instrumentation.
+- `src/trace/noop.trace-exporter.ts` – Lightweight helper for logging/testing scenarios when you need a no-op exporter.
 - `src/open-telemetry.module.ts` – Central module wiring that registers the default instrumentation array and exposes the tracing services.
-- `src/trace/instrumentation/controller.instrumentation.ts` – Full instrumentation pipeline (metadata scanning, wrapping) with `controller.instrumentation.spec.ts` validating behavior.
-- `src/trace/instrumentation/guard.instrumentation.spec.ts` (paired with `guard.instrumentation.ts`) – Canonical Jest template for instrumentation tests; copy this when adding new providers.
-- `src/trace/trace-wrapper.ts` + `.spec.ts` – Manual span creation for non-injectable objects.
 - `src/open-telemetry-nestjs-sdk.ts` – NodeSDK bootstrap, auto-instrumentation config (`nodeAutoInstrumentationReduceNoise`, `nestjsTextMapPropagator`, etc.).
+- `src/trace/instrumentation/controller.instrumentation.ts` + `.spec.ts` – Full instrumentation pipeline (metadata scanning, wrapping) and companion tests validating controller behavior.
+- `src/trace/instrumentation/guard.instrumentation.spec.ts` – Canonical Jest template for instrumentation tests; copy this when adding new providers.
+- `src/trace/instrumentation/base-trace.instrumentation.ts` – Shared logic for scanning modules/providers and applying wrappers.
+- `src/trace/trace-wrapper.ts` + `.spec.ts` – Manual span creation for non-injectable objects.
+- `src/meta-scanner.ts` + `.spec.ts` – Utility for enumerating Nest providers and their metadata; reuse when adding reflection-driven instrumentation.
+- `README.md` – Primary user-facing guide showcasing setup, decorators, instrumentation tables, and assets.
 - `docs/migration-5-to-6.md` – Long-form documentation template with before/after comparisons and checklist.
-- `.github/workflows/ci.yml` – Source of required validation steps for every contribution.
-- `.github/workflows/release.yml` & `.github/workflows/releaseBeta.yml` – Release automation pipelines (semantic-release on `main`, manual beta publishing).
 
 ## Critical Rules & Tips
 - Always keep coverage thresholds satisfied; if you touch instrumentation logic, expand the companion `*.spec.ts` rather than lowering thresholds.
