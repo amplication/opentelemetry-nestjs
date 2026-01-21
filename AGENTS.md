@@ -58,7 +58,7 @@
 
 ## Coding & Testing Patterns
 - **Instrumentation abstraction:** `src/trace/instrumentation/Instrumentation.ts` defines the interface, while `base-trace.instrumentation.ts` centralizes metadata lookup. Concrete instrumentations live under the same directory with paired specs (e.g., `controller.instrumentation.ts` + `.spec.ts`).
-- **Default coverage for Nest pieces:** `OpenTelemetryModule` exports `defaultInstrumentation` (controllers, GraphQL resolvers, guards, interceptors, event emitters, schedulers, pipes, console logger) and ensures each class’ `setupInstrumentation()` runs through `ModuleRef` (see `src/open-telemetry.module.ts`).
+- **Default coverage for Nest pieces:** `OpenTelemetryModule` exports `defaultInstrumentation` (controllers, GraphQL resolvers, guards, interceptors, event emitters, schedulers, pipes, console logger) and, when `forRoot` is used, the `Constants.SDK_INJECTORS` factory iterates those classes and calls `setupInstrumentation()` directly; the async builder path instead relies on `ModuleRef` to resolve providers before invoking `setupInstrumentation()` (see `src/open-telemetry.module.ts`).
 - **Decorators:** `src/trace/decorators/span.ts` and `traceable.ts` attach metadata consumed by `DecoratorInstrumentation` to wrap provider methods. Class-level `@Traceable()` instruments every method; method-level `@Span()` accepts optional span names.
 - **Manual spans:** `TraceService` and `TraceWrapper` provide escape hatches when DI hooks are unavailable. `trace-wrapper.spec.ts` demonstrates wrapping non-injectable classes with automatic span creation.
 - **Colocated tests:** Every helper/instrumentation class retains a nearby `.spec.ts` (e.g., `meta-scanner.spec.ts`, `event-emitter.instrumentation.spec.ts`), and Jest is configured to look only inside `src/` (see `jest.config.js`).
@@ -109,6 +109,7 @@ npm run build # Nest CLI build
 - `src/trace/trace-wrapper.ts` + `.spec.ts` – Manual span creation for non-injectable objects.
 - `src/meta-scanner.ts` + `.spec.ts` – Utility for enumerating Nest providers and their metadata; reuse when adding reflection-driven instrumentation.
 - `README.md` – Primary user-facing guide showcasing setup, decorators, instrumentation tables, and assets.
+- `.github/workflows/ci.yml` – Canonical validation workflow (npm ci → lint → test:cov → build).
 - `docs/migration-5-to-6.md` – Long-form documentation template with before/after comparisons and checklist.
 
 ## Critical Rules & Tips
