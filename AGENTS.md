@@ -2,6 +2,7 @@
 
 ## Project Overview
 - **Purpose:** `@amplication/opentelemetry-nestjs` is a NestJS module that wires OpenTelemetry tracing and metrics into framework primitives, pairing auto-instrumentation with SDK helpers for Node environments (see `README.md`).
+- **Key SDK helpers:** `src/open-telemetry-nestjs-sdk.ts` exports `startNestJsOpenTelemetrySDK` (bootstraps the NodeSDK with Nest-friendly defaults), `nodeAutoInstrumentationReduceNoise` (central place to merge low-noise auto-instrumentation settings), and `nestjsContextManager` (AsyncLocalStorage-backed context manager to keep spans aligned with Nest request scope).
 - **Tech stack:** TypeScript (NestJS module + decorators), OpenTelemetry SDK, Jest for unit tests, ESLint/Prettier for linting, and semantic-release for automated publishing.
 - **Distribution:** Built via `nest build` and published from `dist/` (configured in `package.json`, `tsconfig.json`, and `tsconfig.build.json`).
 
@@ -73,7 +74,7 @@
 - **Versioning:** Managed exclusively by semantic-release; do not hand-edit `version` except inside the manual beta workflow.
 
 ## Documentation Guidance
-- **README pattern:** The root `README.md` mixes marketing (badges, description) with practical sections (Installation, Setup, decorator usage, instrumentation table, TIP callouts, code fences, and image embeds like `![Example trace output](./docs/log.png)`). Match this tone—include inline links to NestJS/OpenTelemetry docs, highlight decorators, and use `[!TIP]` blocks for caveats.
+- **README pattern:** The root `README.md` mixes marketing (badges, description) with practical sections (Installation, Setup, decorator usage, instrumentation table, TIP callouts, code fences, and image embeds like `![Example trace output](./docs/log.png)`). Match this tone—include inline links to NestJS/OpenTelemetry docs, highlight decorators, and use `[!TIP]` blocks for caveats, plus keep the manual tracing helper walkthrough (`TraceWrapper`), metrics guidance (Prometheus exporter steps), and external integration examples (Prometheus scraping, OTLP exporters, AWS X-Ray/CloudWatch) up to date.
 - **Migration guides:** `docs/migration-5-to-6.md` illustrates preferred structure—table of contents, before/after TypeScript snippets, checklists, and bold "Key Changes" callouts. Follow its format when documenting future breaking changes.
 - **Assets:** Store diagrams/screenshots inside `docs/` (existing `log.png` and `trace-flow.jpeg`) and reference them with relative paths to keep README portable.
 
@@ -85,6 +86,26 @@ npm run lint
 npm run test:cov
 npm run build # Nest CLI build
 ```
+
+### Bootstrap SDK helpers for tracing
+1. Add a `tracing.ts` (or similar) file that imports `startNestJsOpenTelemetrySDK`, `nodeAutoInstrumentationReduceNoise`, and `nestjsContextManager` from `@amplication/opentelemetry-nestjs` (bring in `nodeAutoInstrumentationHttpReduceIncoming` if you need extra filters).
+2. Call `startNestJsOpenTelemetrySDK` with merged instrumentation config, for example:
+   ```ts
+   startNestJsOpenTelemetrySDK({
+     instrumentations: [
+       getNodeAutoInstrumentations(
+         mergeInstrumentationConfigMap(
+           nodeAutoInstrumentationReduceNoise(),
+           nodeAutoInstrumentationHttpReduceIncoming(),
+         ),
+       ),
+     ],
+     contextManager: nestjsContextManager(),
+   });
+   ```
+   This keeps noisy spans out while ensuring the Nest context manager is active for request-scoped spans.
+3. Import the tracing file at the very top of `main.ts` so the SDK (and its context manager) boots before Nest constructs modules.
+4. Run `npm run lint`, `npm run test:cov`, and `npm run build` to verify tracing boots cleanly alongside the rest of the validation pipeline.
 
 ### Adding or updating instrumentation
 1. Create a new file in `src/trace/instrumentation/` (kebab-case) that extends `BaseTraceInstrumentation` or implements `Instrumentation`.
@@ -102,7 +123,7 @@ npm run build # Nest CLI build
 - `src/trace/decorators/span.ts` – Minimal decorator implementation showcasing metadata keys from `src/constants.ts`.
 - `src/trace/noop.trace-exporter.ts` – Lightweight helper for logging/testing scenarios when you need a no-op exporter.
 - `src/open-telemetry.module.ts` – Central module wiring that registers the default instrumentation array and exposes the tracing services.
-- `src/open-telemetry-nestjs-sdk.ts` – NodeSDK bootstrap, auto-instrumentation config (`nodeAutoInstrumentationReduceNoise`, `nestjsTextMapPropagator`, etc.).
+- `src/open-telemetry-nestjs-sdk.ts` – Canonical reference for `startNestJsOpenTelemetrySDK` (bootstraps the NodeSDK with Nest defaults), `nodeAutoInstrumentationReduceNoise` (curated instrumentation config), and `nestjsContextManager` (AsyncLocalStorage-backed context propagation).
 - `src/trace/instrumentation/controller.instrumentation.ts` + `.spec.ts` – Full instrumentation pipeline (metadata scanning, wrapping) and companion tests validating controller behavior.
 - `src/trace/instrumentation/guard.instrumentation.spec.ts` – Canonical Jest template for instrumentation tests; copy this when adding new providers.
 - `src/trace/instrumentation/base-trace.instrumentation.ts` – Shared logic for scanning modules/providers and applying wrappers.
