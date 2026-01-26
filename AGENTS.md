@@ -22,6 +22,7 @@
 | `src/open-telemetry-nestjs-sdk.ts` | SDK utilities (`startNestJsOpenTelemetrySDK`, `nodeAutoInstrumentationReduceNoise`, etc.). | Houses noise-reduction helpers, propagators, and config merging logic. |
 | `docs/` | Markdown guides (e.g., [`docs/migration-5-to-6.md`](docs/migration-5-to-6.md)) plus images referenced by the README. | Follow the same structured style when contributing docs. |
 | `.github/workflows/ci.yml` | CI pipeline running lint, tests (with coverage), and build on push/PR. | Defines the minimum checks your changes must pass. |
+| `.github/workflows/release.yml` & `.github/workflows/releaseBeta.yml` | Stable and beta semantic-release pipelines. | Publish releases from `main` using conventional commits; do not trigger manually. |
 | Root configs | `package.json`, `tsconfig*.json`, `.eslintrc.js`, `.prettierrc`, `jest.config.js`. | Do not hand-edit `dist/`; use scripts defined in `package.json`. |
 
 ## Development Guidelines
@@ -153,5 +154,6 @@ Run commands in this order to mimic CI. Investigate and fix lint/test/build fail
 - [Jest Configuration (`jest.config.js`)](jest.config.js) — coverage thresholds and test root definition.
 - [Package Scripts (`package.json`)](package.json) — canonical list of npm scripts (lint/test/build/format, semantic-release).
 - [CI Workflow (`.github/workflows/ci.yml`)](.github/workflows/ci.yml) — replicable checklist for automated validation.
+- [Release Workflows (`.github/workflows/release.yml`, `.github/workflows/releaseBeta.yml`)](.github/workflows) — semantic-release automation for stable and beta channels; never edit without coordinating versioning strategy.
 
 Use this guide as the single source of truth when planning or executing automated contributions to the project.
