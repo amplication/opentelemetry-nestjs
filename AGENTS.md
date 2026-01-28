@@ -7,7 +7,7 @@
 - **Purpose:** `@amplication/opentelemetry-nestjs` is a NestJS-focused OpenTelemetry helper module that auto-instruments controllers, providers, microservice handlers, schedulers, and logging while exposing decorators, tracing helpers, and SDK bootstrapping utilities.
 - **Core Exports:** `OpenTelemetryModule` (with `.forRoot()` / `.forRootAsync()`), default instrumentation classes under `src/trace/instrumentation`, decorators (`@Span`, `@Traceable`), `TraceService`, the `Tracer` provider, and SDK helpers from `src/open-telemetry-nestjs-sdk.ts`.
 - **Key Behaviors:**
-  - Automatic wiring of NestJS components to spans with semantic attributes (`nestjs.type`, `nestjs.controller`, etc.).
+  - Automatic wiring of NestJS components defined in the default instrumentation array from [`src/open-telemetry.module.ts`](src/open-telemetry.module.ts)—controllers, GraphQL resolvers, guards, interceptors, pipes, scheduler jobs, event emitters, and the console logger—to spans with semantic attributes (`nestjs.type`, `nestjs.controller`, etc.).
   - SDK helper functions to start a tuned `NodeSDK` with context manager, propagators, and reduced-noise instrumentations.
   - README- and docs-driven guidance for consumers, plus CI enforcement (lint, coverage, build) on every PR.
 
@@ -17,7 +17,9 @@
 | --- | --- | --- |
 | `src/` | Library source. `index.ts` re-exports the module, instrumentation providers, decorators, and SDK helpers. | TypeScript only; compilation output lives in `dist/` (generated via `nest build`). |
 | `src/trace/decorators/` | Decorators such as [`span.ts`](src/trace/decorators/span.ts) and `traceable.ts`. | Decorators rely on metadata constants defined in `src/constants.ts`. |
+| `src/constants.ts` | Centralizes trace metadata keys (e.g., `Constants.TRACE_METADATA`) and shared attribute names. | Update alongside new decorators or instrumentation to keep metadata aligned. |
 | `src/trace/instrumentation/` | Instrumentation classes (e.g., [`controller.instrumentation.ts`](src/trace/instrumentation/controller.instrumentation.ts)) plus shared base classes and interfaces. | Every instrumentation has a co-located `.spec.ts` (Jest). |
+| `src/trace/instrumentation/base-trace.instrumentation.ts` (+ spec) | Provides the `BaseTraceInstrumentation` utilities for scanning modules and wiring spans. | Extend this base (and update the paired `.spec.ts`) when adding new instrumentation types. |
 | `src/open-telemetry.module.ts` | Declares `OpenTelemetryModule`, the default instrumentation array, and tracer provider wiring. | Uses NestJS DI patterns and `EventEmitterModule` internally. |
 | `src/open-telemetry-nestjs-sdk.ts` | SDK utilities (`startNestJsOpenTelemetrySDK`, `nodeAutoInstrumentationReduceNoise`, etc.). | Houses noise-reduction helpers, propagators, and config merging logic. |
 | `docs/` | Markdown guides (e.g., [`docs/migration-5-to-6.md`](docs/migration-5-to-6.md)) plus images referenced by the README. | Follow the same structured style when contributing docs. |
@@ -28,7 +30,8 @@
 ## Development Guidelines
 
 1. **Environment:** Target Node.js LTS (CI uses `lts/*`). Run `npm ci` to install dependencies.
-2. **Types & Style:**
+2. **CI Command Order:** Run `npm ci` → `npm run lint` → `npm run test:cov` → `npm run build` sequentially to mirror [`.github/workflows/ci.yml`](.github/workflows/ci.yml); do not reorder or skip steps.
+3. **Types & Style:**
    - TypeScript only; keep filenames in kebab-case.
    - Use the existing ESLint + Prettier configuration (`npm run lint` / `npm run format`).
    - Prefer explicit types when adding public APIs.
