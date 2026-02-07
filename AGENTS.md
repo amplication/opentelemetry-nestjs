@@ -4,12 +4,12 @@
 
 ## Project Overview
 
-- **Purpose:** `@amplication/opentelemetry-nestjs` is a NestJS-focused OpenTelemetry helper module that auto-instruments controllers, providers, microservice handlers, schedulers, and logging while exposing decorators, tracing helpers, and SDK bootstrapping utilities.
-- **Core Exports:** `OpenTelemetryModule` (with `.forRoot()` / `.forRootAsync()`), default instrumentation classes under `src/trace/instrumentation`, decorators (`@Span`, `@Traceable`), `TraceService`, the `Tracer` provider, Trace utilities (`trace-wrapper`, `meta-scanner`, `logger.interface`, `noop.trace-exporter`), and SDK helpers from `src/open-telemetry-nestjs-sdk.ts`.
+- **Purpose:** `@amplication/opentelemetry-nestjs` is a NestJS-focused OpenTelemetry helper module that auto-instruments controllers, GraphQL resolvers, guards, interceptors, pipes, schedulers, event emitters, and the Nest console logger while exposing decorators, tracing helpers, and SDK bootstrapping utilities.
+- **Core Exports:** `OpenTelemetryModule` (with `.forRoot()` / `.forRootAsync()`), default instrumentation classes under `src/trace/instrumentation`, decorators (`@Span`, `@Traceable`), `TraceService`, the `Tracer` provider, Trace utilities (`trace-wrapper`, [`src/meta-scanner.ts`](src/meta-scanner.ts), `logger.interface`, `noop.trace-exporter`), and SDK helpers from `src/open-telemetry-nestjs-sdk.ts`.
 - **Key Behaviors:**
   - Automatic wiring of NestJS components defined in the default instrumentation array from [`src/open-telemetry.module.ts`](src/open-telemetry.module.ts)—controllers, GraphQL resolvers, guards, interceptors, pipes, scheduler jobs, event emitters, and the console logger—to spans with semantic attributes (`nestjs.type`, `nestjs.controller`, etc.).
   - SDK helper functions to start a tuned `NodeSDK` with context manager, propagators, and reduced-noise instrumentations.
-  - Trace utilities coordinate metadata scanning and wrapping so instrumentation stays consistent (see `src/trace/meta-scanner.ts`, `src/trace/trace-wrapper.ts`).
+  - Trace utilities coordinate metadata scanning and wrapping so instrumentation stays consistent (see `src/meta-scanner.ts`, `src/trace/trace-wrapper.ts`).
   - README- and docs-driven guidance for consumers, plus CI enforcement (lint, coverage, build) on every PR using npm scripts (`lint`, `test`, `test:cov`, `build`, `semantic-release`, etc.).
 
 ## Repository Structure
@@ -20,8 +20,10 @@
 | `src/trace/decorators/` | Decorators such as [`span.ts`](src/trace/decorators/span.ts) and `traceable.ts`. | Decorators rely on metadata constants defined in `src/constants.ts`. |
 | `src/constants.ts` | Centralizes trace metadata keys (e.g., `Constants.TRACE_METADATA`) and shared attribute names. | Update alongside new decorators or instrumentation to keep metadata aligned. |
 | `src/trace/instrumentation/` | Instrumentation classes (e.g., [`controller.instrumentation.ts`](src/trace/instrumentation/controller.instrumentation.ts)) plus shared base classes and interfaces. | Every instrumentation has a co-located `.spec.ts` (Jest). |
+| `src/trace/instrumentation/decorator.instrumentation.ts` | Primes decorator metadata so instrumentation can read `@Traceable`/`@Span` data before wrapping class methods. | Runs before other instrumentation to ensure metadata caches are populated. |
+| `src/trace/instrumentation/instrumentation.ts` | Declares the `Instrumentation` contract implemented by every instrumentation class. | Use this interface whenever registering new instrumentation providers. |
 | `src/trace/instrumentation/base-trace.instrumentation.ts` (+ spec) | Provides the `BaseTraceInstrumentation` utilities for scanning modules and wiring spans. | Extend this base (and update the paired `.spec.ts`) when adding new instrumentation types. |
-| `src/trace/meta-scanner.ts` (+ spec) | Discovers decorated methods using cached metadata lookups to feed instrumentation and wrappers. | Keep scanner tests (`meta-scanner.spec.ts`) aligned whenever metadata keys/constants change. |
+| `src/meta-scanner.ts` (+ spec) | Discovers decorated methods using cached metadata lookups to feed instrumentation and wrappers. | Keep scanner tests (`src/meta-scanner.spec.ts`) aligned whenever metadata keys/constants change. |
 | `src/trace/trace-wrapper.ts` (+ `trace-wrapper.types.ts`, `.spec.ts`) | Auto-wraps class methods (sync, Promise, Observable) with spans and optional structured logging. | Honors `ILogger` implementations from `logger.interface.ts`; update specs when changing wrapping semantics. |
 | `src/trace/logger.interface.ts` | Defines the `ILogger` contract (`debug/info/warn/error`) consumed by instrumentation utilities. | Provide concrete loggers in tests when verifying TraceWrapper behavior. |
 | `src/trace/noop.trace-exporter.ts` | Minimal `SpanExporter` that drops spans, useful for local testing or disabling exports. | Wire it into tests when you need a predictable exporter without network writes. |
@@ -168,7 +170,7 @@ Run commands in this order to mimic CI. Investigate and fix lint/test/build fail
 | [`src/trace/decorators/span.ts`](src/trace/decorators/span.ts) | Minimal decorator showing metadata usage (`Constants.TRACE_METADATA`). |
 | [`src/trace/instrumentation/controller.instrumentation.ts`](src/trace/instrumentation/controller.instrumentation.ts) | Full-featured instrumentation extending `BaseTraceInstrumentation` with logging and span attributes. |
 | [`src/trace/instrumentation/controller.instrumentation.spec.ts`](src/trace/instrumentation/controller.instrumentation.spec.ts) | Jest test verifying spans for HTTP and microservice controllers, error propagation, and decorator interactions. |
-| [`src/trace/meta-scanner.ts`](src/trace/meta-scanner.ts) & [`src/trace/meta-scanner.spec.ts`](src/trace/meta-scanner.spec.ts) | Metadata discovery utilities and their tests; reference when adding new decorator keys. |
+| [`src/meta-scanner.ts`](src/meta-scanner.ts) & [`src/meta-scanner.spec.ts`](src/meta-scanner.spec.ts) | Metadata discovery utilities and their tests; reference when adding new decorator keys. |
 | [`src/trace/trace-wrapper.ts`](src/trace/trace-wrapper.ts) & [`src/trace/trace-wrapper.spec.ts`](src/trace/trace-wrapper.spec.ts) | Shows how methods are wrapped (sync/promise/observable) and tested with custom loggers/exporters. |
 | [`src/open-telemetry.module.ts`](src/open-telemetry.module.ts) | Blueprint for module providers, default instrumentation array, and async factory usage. |
 | [`src/open-telemetry-nestjs-sdk.ts`](src/open-telemetry-nestjs-sdk.ts) | SDK bootstrap helpers combining noise-reduction config, context manager, and propagators. |
