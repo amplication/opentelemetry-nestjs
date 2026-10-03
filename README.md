@@ -26,6 +26,9 @@ monitor and analyze your application with minimal configuration.
 npm install @amplication/opentelemetry-nestjs --save
 ```
 
+Supports NestJS 10, 11 and 12 on Node.js >= 20.19. `@nestjs/graphql`, `@nestjs/microservices`,
+`@nestjs/schedule` and `@nestjs/platform-express` are optional peers - install them only if your app uses them.
+
 ## Setup
 
 Getting started with `@amplication/opentelemetry-nestjs` is simple. To enable automatic instrumentation for most NestJS
@@ -512,6 +515,19 @@ startNestJsOpenTelemetrySDK({
   textMapPropagator: new AWSXRayPropagator(),
 });
 ```
+
+## Migrating from v6.x to v7.x
+
+Version 7.0 has no API changes. It drops support for NestJS 8 and 9 and adds support for NestJS 12 and
+`@nestjs/graphql` 13.4+ / 14:
+
+- **Supported versions**: NestJS 10, 11 and 12 (`@nestjs/graphql` 12-14, `@nestjs/event-emitter` 2, 3 and 12,
+  `@nestjs/schedule` 3-6 and 12). Node.js >= 20.19 is required, which lets this CommonJS package load the
+  ESM-only NestJS 12 packages.
+- **Optional peers**: `@nestjs/graphql`, `@nestjs/microservices`, `@nestjs/schedule` and `@nestjs/platform-express`
+  are no longer installed automatically. Add them to your app's dependencies if you use them.
+- **No more internal imports**: the package no longer deep-imports `@nestjs/graphql/dist/...` or
+  `@nestjs/microservices/constants`, which broke with the package `exports` maps introduced in `@nestjs/graphql` 13.4.
 
 ## Migrating from v5.x to v6.x
 

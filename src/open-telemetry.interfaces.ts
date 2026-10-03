@@ -1,5 +1,4 @@
-import { InjectionToken, ModuleMetadata } from '@nestjs/common';
-import { Provider } from '@nestjs/common/interfaces/modules/provider.interface';
+import { InjectionToken, ModuleMetadata, Provider } from '@nestjs/common';
 import type { Instrumentation } from './trace/instrumentation/Instrumentation';
 
 export type OpenTelemetryModuleConfig = {

@@ -1,14 +1,15 @@
-import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
+import type { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 import { Constants } from '../../constants';
 import { ModulesContainer } from '@nestjs/core';
-import { Controller, Injectable } from '@nestjs/common/interfaces';
+import type { Controller, Injectable } from '@nestjs/common/interfaces';
 import { PATH_METADATA } from '@nestjs/common/constants';
-import { PATTERN_METADATA } from '@nestjs/microservices/constants';
 import { TraceWrapper } from '../trace-wrapper';
 import { SpanKind } from '@opentelemetry/api';
 import { MetadataScanner } from '../../meta-scanner';
 
 export class BaseTraceInstrumentation {
+  private static PATTERN_METADATA = 'microservices:pattern';
+
   protected readonly metadataScanner: MetadataScanner = new MetadataScanner();
 
   constructor(protected readonly modulesContainer: ModulesContainer) {}
@@ -49,7 +50,10 @@ export class BaseTraceInstrumentation {
   }
 
   protected isMicroservice(prototype): boolean {
-    return Reflect.hasMetadata(PATTERN_METADATA, prototype);
+    return Reflect.hasMetadata(
+      BaseTraceInstrumentation.PATTERN_METADATA,
+      prototype,
+    );
   }
 
   protected isAffected(prototype): boolean {

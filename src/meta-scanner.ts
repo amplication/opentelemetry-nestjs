@@ -1,9 +1,9 @@
-import { Injectable } from '@nestjs/common/interfaces';
-import {
-  isConstructor,
-  isFunction,
-  isNil,
-} from '@nestjs/common/utils/shared.utils';
+import type { Injectable } from '@nestjs/common/interfaces';
+
+const isConstructor = (value: unknown): boolean => value === 'constructor';
+const isFunction = (value: unknown): boolean => typeof value === 'function';
+const isNil = (value: unknown): value is null | undefined =>
+  value === undefined || value === null;
 
 export class MetadataScanner {
   private readonly cachedScannedPrototypes: Map<object, string[]> = new Map();

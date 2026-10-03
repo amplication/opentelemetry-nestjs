@@ -1,9 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ModulesContainer } from '@nestjs/core';
-import {
-  RESOLVER_NAME_METADATA,
-  RESOLVER_TYPE_METADATA,
-} from '@nestjs/graphql/dist/graphql.constants';
 import { BaseTraceInstrumentation } from './base-trace.instrumentation';
 import { Instrumentation } from './Instrumentation';
 
@@ -12,6 +8,9 @@ export class GraphQLResolverInstrumentation
   extends BaseTraceInstrumentation
   implements Instrumentation
 {
+  private static RESOLVER_NAME_METADATA = 'graphql:resolver_name';
+  private static RESOLVER_TYPE_METADATA = 'graphql:resolver_type';
+
   private readonly loggerService = new Logger();
 
   constructor(protected readonly modulesContainer: ModulesContainer) {
@@ -22,7 +21,7 @@ export class GraphQLResolverInstrumentation
     const providers = this.getProviders();
     for (const provider of providers) {
       const isGraphQlResolver = Reflect.hasMetadata(
-        RESOLVER_NAME_METADATA,
+        GraphQLResolverInstrumentation.RESOLVER_NAME_METADATA,
         provider.metatype,
       );
       const keys = this.metadataScanner.getAllMethodNames(
@@ -31,7 +30,7 @@ export class GraphQLResolverInstrumentation
 
       for (const key of keys) {
         const resolverMeta = Reflect.getMetadata(
-          RESOLVER_TYPE_METADATA,
+          GraphQLResolverInstrumentation.RESOLVER_TYPE_METADATA,
           provider.metatype.prototype[key],
         );
 
