@@ -3,7 +3,7 @@ import { Instrumentation } from './Instrumentation';
 import { APP_PIPE, ModulesContainer } from '@nestjs/core';
 import { BaseTraceInstrumentation } from './base-trace.instrumentation';
 import { PIPES_METADATA } from '@nestjs/common/constants';
-import { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
+import type { InstanceWrapper } from '@nestjs/core/injector/instance-wrapper';
 
 @Injectable()
 export class PipeInstrumentation

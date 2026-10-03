@@ -19,3 +19,25 @@ jobs:
       - run: npm run lint
       - run: npm run test:cov
       - run: npm run build
+
+  compat:
+    name: compat (NestJS ${{ matrix.nest }}, ${{ matrix.profile }}, Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # NestJS 12 is ESM-only: covers CJS require() of it at the engines.node floor
+          - { nest: 12, profile: full, node: 20.19 }
+          # optional peers (graphql, microservices, schedule) absent
+          - { nest: 11, profile: minimal, node: 22 }
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm pack
+      - run: compat/run.sh ${{ matrix.profile }} ${{ matrix.nest }}

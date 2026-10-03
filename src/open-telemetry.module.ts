@@ -1,10 +1,11 @@
-import { DynamicModule, InjectionToken } from '@nestjs/common';
+import {
+  DynamicModule,
+  FactoryProvider,
+  InjectionToken,
+  Provider,
+} from '@nestjs/common';
 import { TraceService } from './trace/trace.service';
 import { Constants } from './constants';
-import {
-  FactoryProvider,
-  Provider,
-} from '@nestjs/common/interfaces/modules/provider.interface';
 import {
   OpenTelemetryModuleAsyncOptions,
   OpenTelemetryModuleConfig,
