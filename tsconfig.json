@@ -12,5 +12,6 @@
     "baseUrl": "./",
     "skipLibCheck": true,
     "incremental": true
-  }
+  },
+  "exclude": ["node_modules", "dist", "compat"]
 }

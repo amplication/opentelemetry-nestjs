@@ -115,5 +115,10 @@
     "@nestjs/schedule": {
       "optional": true
     }
-  }
+  },
+  "files": [
+    "dist",
+    "src",
+    "docs"
+  ]
 }
